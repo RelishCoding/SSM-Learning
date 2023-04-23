@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--bean：配置一个bean对象，将对象交给IOC容器管理
+        属性：
+        id：bean的唯一标识，不能重复
+        class：设置bean对象所对应的类型
+    -->
+    <bean id="helloworld" class="com.atguigu.helloworld.pojo.HelloWorld"></bean>
+
+    <bean id="studentOne" class="com.atguigu.ioc_xml.pojo.Student"></bean>
+    <bean id="studentTwo" class="com.atguigu.ioc_xml.pojo.Student">
+        <!--
+            property：通过成员变量的set方法进行赋值
+            name：设置需要赋值的属性名（和set方法有关）
+            value：设置为属性所赋的值
+        -->
+        <property name="sid" value="1001"></property>
+        <property name="sname" value="张三"></property>
+        <property name="age" value="23"></property>
+        <property name="gender" value="男"></property>
+    </bean>
+
+    <bean id="studentThree" class="com.atguigu.ioc_xml.pojo.Student">
+        <constructor-arg value="1002"></constructor-arg>
+        <constructor-arg value="李四"></constructor-arg>
+        <constructor-arg value="女"></constructor-arg>
+        <constructor-arg value="24" name="age"></constructor-arg>
+    </bean>
+
+    <bean id="studentFour" class="com.atguigu.ioc_xml.pojo.Student">
+        <property name="sid" value="1003"></property>
+        <!--
+            <对应的实体：&lt;
+            >对应的实体：&gt;
+        -->
+<!--        <property name="sname" value="&lt;王五&gt;"></property>-->
+        <property name="sname">
+            <value><![CDATA[<王五>]]></value>
+        </property>
+        <property name="gender">
+            <null/>
+        </property>
+    </bean>
+</beans>
