@@ -1,6 +1,6 @@
 # 一、Spring简介
 
-## 1.1、Spring概述
+## 1、Spring概述
 
 官网地址：https://spring.io/
 
@@ -13,15 +13,15 @@
 > Spring 框架的核心特性是可以用于开发任何 Java 应用程序，但是在 Java EE 平台上构建 web 应用程序是需要扩展的。 Spring 框架的目标是使 J2EE 开发变得更容易使用，通过启用基于 POJO 编程模型来促进良好的编程实践。
 >
 
-## 1.2、Spring家族
+## 2、Spring家族
 
 项目列表：https://spring.io/projects
 
-## 1.3、Spring Framework
+## 3、Spring Framework
 
 Spring 基础框架，可以视为 Spring 基础设施，基本上任何其他 Spring 项目都是以 Spring Framework为基础的。
 
-### 1.3.1、Spring Framework特性
+### 3.1、Spring Framework特性
 
 - **非侵入式**：使用 Spring Framework 开发应用程序时，Spring 对应用程序本身的结构影响非常
 
@@ -55,7 +55,7 @@ Spring 基础框架，可以视为 Spring 基础设施，基本上任何其他 S
 
 项目已经覆盖了广泛领域，很多方面的功能性需求可以在 Spring Framework 的基础上全部使用 Spring 来实现。
 
-### 1.3.2、Spring Framework五大功能模块
+### 3.2、Spring Framework五大功能模块
 
 | **功能模块**            | **功能介绍**                                                |
 | ----------------------- | ----------------------------------------------------------- |
@@ -67,9 +67,9 @@ Spring 基础框架，可以视为 Spring 基础设施，基本上任何其他 S
 
 # 二、IOC
 
-## 2.1、IOC容器
+## 1、IOC容器
 
-### 2.1.1、IOC思想
+### 1.1、IOC思想
 
 IOC：Inversion of Control，翻译过来是**反转控制**。
 
@@ -77,9 +77,7 @@ IOC：Inversion of Control，翻译过来是**反转控制**。
 
 自己做饭：买菜、洗菜、择菜、改刀、炒菜，全过程参与，费时费力，必须清楚了解资源创建整个过程中的全部细节且熟练掌握。
 
-在应用程序中的组件需要获取资源时，传统的方式是组件**主动**的从容器中获取所需要的资源，在这样的
-
-模式下开发人员往往需要知道在具体容器中特定资源的获取方式，增加了学习成本，同时降低了开发效率。
+在应用程序中的组件需要获取资源时，传统的方式是组件**主动**的从容器中获取所需要的资源，在这样的模式下开发人员往往需要知道在具体容器中特定资源的获取方式，增加了学习成本，同时降低了开发效率。
 
 #### ②反转控制方式获取资源
 
@@ -97,7 +95,7 @@ DI 是 IOC 的另一种表述方式：即组件以一些预先定义好的方式
 
 所以结论是：IOC 就是一种反转控制的思想， 而 DI 是对 IOC 的一种具体实现。
 
-### 2.1.2、IOC容器在Spring中的实现
+### 1.2、IOC容器在Spring中的实现
 
 Spring 的 IOC 容器就是 IOC 思想的一个落地的产品实现。IOC 容器中管理的组件也叫做 bean。在创建bean 之前，首先需要创建 IOC 容器。Spring 提供了 IOC 容器的两种实现方式：
 
@@ -117,14 +115,14 @@ ApplicationContext 而不是底层的 BeanFactory。
 
 | **类型名**                      | **简介**                                                     |
 | ------------------------------- | ------------------------------------------------------------ |
-| ClassPathXmlApplicationContext  | 通过读取类路径下的 XML 格式的配置文件创建 IOC 容器对象       |
+| ClassPathXmlApplicationContext  | 通过读取类路径下的 XML 格式的配置文件创建 IOC 容器对象（用的较多） |
 | FileSystemXmlApplicationContext | 通过文件系统路径读取 XML 格式的配置文件创建 IOC 容器对象     |
 | ConfigurableApplicationContext  | ApplicationContext 的子接口，包含一些扩展方法refresh() 和 close() ，让 ApplicationContext 具有启动、关闭和刷新上下文的能力。 |
 | WebApplicationContext           | 专门为 Web 应用准备，基于 Web 环境创建 IOC 容器对象，并将对象引入存入 ServletContext 域中。 |
 
-## 2.2、基于XML管理bean
+## 2、基于XML管理bean
 
-### 2.2.1、实验一：入门案例
+### 2.1、实验一：入门案例
 
 #### ①创建Maven Module
 
@@ -171,8 +169,8 @@ public class HelloWorld {
 	配置HelloWorld所对应的bean，即将HelloWorld的对象交给Spring的IOC容器管理
 	通过bean标签配置IOC容器所管理的bean
 	属性：
-		id：设置bean的唯一标识
-		class：设置bean所对应类型的全类名
+		id：设置bean的唯一标识，不能重复
+		class：设置bean对象所对应类型的全类名
 -->
 <bean id="helloworld" class="com.atguigu.spring.bean.HelloWorld"></bean>
 ```
@@ -182,8 +180,8 @@ public class HelloWorld {
 ```java
 @Test
 public void testHelloWorld(){
-    ApplicationContext ac = newClassPathXmlApplicationContext("applicationContext.xml");
-    HelloWorld helloworld = (HelloWorld) ac.getBean("helloworld");
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+    HelloWorld helloworld = (HelloWorld) ioc.getBean("helloworld");
     helloworld.sayHello();
 }
 ```
@@ -204,30 +202,29 @@ Spring 底层默认通过反射技术调用组件类的无参构造器来创建�
 >
 > to instantiate [com.atguigu.spring.bean.HelloWorld]: No default constructor found; nested
 >
-> exception is java.lang.NoSuchMethodException: com.atguigu.spring.bean.HelloWorld.
+> exception is java.lang.NoSuchMethodException: com.atguigu.spring.bean.HelloWorld.\<init>()
 >
-> <init>()
 
-### 2.2.2、实验二：获取bean
+### 2.2、实验二：获取bean
 
-#### ①方式一：根据id获取
+#### ①方式一：根据bean的id获取
 
 由于 id 属性指定了 bean 的唯一标识，所以根据 bean 标签的 id 属性可以精确获取到一个组件对象。
 
 上个实验中我们使用的就是这种方式。
 
-#### ②方式二：根据类型获取
+#### ②方式二：根据bean的类型获取
 
 ```java
 @Test
 public void testHelloWorld(){
-    ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
-    HelloWorld bean = ac.getBean(HelloWorld.class);
+    ApplicationContext ioc = new ClassPathXmlApplicationContext("applicationContext.xml");
+    HelloWorld bean = ioc.getBean(HelloWorld.class);
     bean.sayHello();
 }
 ```
 
-#### ③方式三：根据id和类型
+#### ③方式三：根据bean的id和类型
 
 ```java
 @Test
@@ -240,22 +237,18 @@ public void testHelloWorld(){
 
 #### ④注意
 
-当根据类型获取bean时，要求IOC容器中指定类型的bean有且只能有一个
+当根据类型获取bean时，要求IOC容器中类型匹配的bean有且只能有一个
 
-当IOC容器中一共配置了两个：
+当IOC容器中一共配置了多个：
 
 ```xml
 <bean id="helloworldOne" class="com.atguigu.spring.bean.HelloWorld"></bean>
 <bean id="helloworldTwo" class="com.atguigu.spring.bean.HelloWorld"></bean>
 ```
 
-根据类型获取时会抛出异常：
+根据类型获取时会抛出异常：NoUniqueBeanDefinitionException
 
-> org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean
->
-> of type 'com.atguigu.spring.bean.HelloWorld' available: expected single matching bean but
->
-> found 2: helloworldOne,helloworldTwo
+若没有任何一个类型匹配的bean，此时抛出异常：NoSuchBeanDefinitionException
 
 #### ⑤扩展
 
@@ -269,11 +262,11 @@ public void testHelloWorld(){
 
 #### ⑥结论
 
-根据类型来获取bean时，在满足bean唯一性的前提下，其实只是看：『对象 **instanceof** 指定的类
+根据类型来获取bean时，在满足bean唯一性的前提下，其实只是看：『对象 **instanceof** 指定的类型』的返回结果，只要返回的是true就可以认定为和类型匹配，能够获取到。
 
-型』的返回结果，只要返回的是true就可以认定为和类型匹配，能够获取到。
+即通过bean的类型、bean所继承的类的类型、bean所实现的接口的类型都可以获取bean
 
-### 2.2.3、实验三：依赖注入之setter注入
+### 2.3、实验三：依赖注入之setter注入
 
 #### ①创建学生类Student
 
@@ -326,8 +319,8 @@ public class Student {
 ```xml
 <bean id="studentOne" class="com.atguigu.spring.bean.Student">
     <!-- property标签：通过组件类的setXxx()方法给组件对象设置属性 -->
-    <!-- name属性：指定属性名（这个属性名是getXxx()、setXxx()方法定义的，和成员变量无关）-->
-    <!-- value属性：指定属性值 -->
+    <!-- name属性：指定需要赋值的属性名（这个属性名是getXxx()、setXxx()方法定义的，和成员变量无关）-->
+    <!-- value属性：设置为属性所赋的值 -->
     <property name="id" value="1001"></property>
     <property name="name" value="张三"></property>
     <property name="age" value="23"></property>
@@ -343,10 +336,11 @@ public void testDIBySet(){
     ApplicationContext ac = new ClassPathXmlApplicationContext("springdi.xml");
     Student studentOne = ac.getBean("studentOne", Student.class);
     System.out.println(studentOne);
+    //Student{sid=1001, sname='张三', age=23, gender='男'}
 }
 ```
 
-### 2.2.4、实验四：依赖注入之构造器注入
+### 2.4、实验四：依赖注入之构造器注入
 
 #### ①在Student类中添加有参构造
 
@@ -377,6 +371,10 @@ public Student(Integer id, String name, Integer age, String sex) {
 > - index属性：指定参数所在位置的索引（从0开始）
 > - name属性：指定参数名
 
+若只有一个有参构造方法，可直接按顺序为参数赋值，可省略name设置参数名
+
+若能匹配到多个有参构造，会默认以最后一个有参构造方法赋值。此时可通过name属性指定为某参数赋值
+
 #### ③测试
 
 ```java
@@ -388,7 +386,7 @@ public void testDIBySet(){
 }
 ```
 
-### 2.2.5、实验五：特殊值处理
+### 2.5、实验五：特殊值处理
 
 #### ①字面量赋值
 
@@ -403,6 +401,8 @@ public void testDIBySet(){
 > 而如果a是带引号的：'a'，那么它现在不是一个变量，它就是代表a这个字母本身，这就是字面
 >
 > 量。所以字面量没有引申含义，就是我们看到的这个数据本身。
+>
+> 字面量包括基本数据类型及其包装类和 String 类型
 
 ```xml
 <!-- 使用value属性给bean的属性赋值时，Spring会把value属性的值看做字面量 -->
@@ -430,6 +430,10 @@ public void testDIBySet(){
 ```xml
 <!-- 小于号在XML文档中用来定义标签的开始，不能随便使用 -->
 <!-- 解决方案一：使用XML实体来代替 -->
+<!-- 
+	<对应的实体：&lt;
+    >对应的实体：&gt;
+-->
 <property name="expression" value="a &lt; b"/>
 ```
 
@@ -440,12 +444,13 @@ public void testDIBySet(){
     <!-- 解决方案二：使用CDATA节 -->
     <!-- CDATA中的C代表Character，是文本、字符的含义，CDATA就表示纯文本数据 -->
     <!-- XML解析器看到CDATA节就知道这里是纯文本，就不会当作XML标签或属性来解析 -->
-    <!-- 所以CDATA节中写什么符号都随意 -->
+    <!-- 所以CDATA节中写什么符号都随意，CDATA节其中的内容会原样解析 -->
+    <!-- CDATA节是xml中一个特殊的标签，因此不能直接写到value属性里面，而应写到单独设置的value子标签中 -->
     <value><![CDATA[a < b]]></value>
 </property>
 ```
 
-### 2.2.6、实验六：为类类型属性赋值
+### 2.6、实验六：为类类型属性赋值
 
 #### ①创建班级类Clazz
 
@@ -577,7 +582,7 @@ public void setClazz(Clazz clazz) {
 </bean>
 ```
 
-### 2.2.7、实验七：为数组类型属性赋值
+### 2.7、实验七：为数组类型属性赋值
 
 #### ①修改Student类
 
@@ -613,7 +618,7 @@ public void setHobbies(String[] hobbies) {
 </bean>
 ```
 
-### 2.2.8、实验八：为集合类型属性赋值
+### 2.8、实验八：为集合类型属性赋值
 
 #### ①为List集合类型属性赋值
 
@@ -788,7 +793,7 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
 
 > 使用util:list、util:map标签必须引入相应的命名空间，可以通过idea的提示功能选择
 
-### 2.2.9、实验九：p命名空间
+### 2.9、实验九：p命名空间
 
 引入p命名空间后，可以通过以下方式为bean的各个属性赋值
 
@@ -797,7 +802,7 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
       p:id="1006" p:name="小明" p:clazz-ref="clazzOne" p:teacherMap-ref="teacherMap"></bean>
 ```
 
-### 2.2.10、实验十：引入外部属性文件
+### 2.10、实验十：引入外部属性文件
 
 #### ①加入依赖
 
@@ -857,7 +862,7 @@ public void testDataSource() throws SQLException {
 }
 ```
 
-### 2.2.11、实验十一：bean的作用域
+### 2.11、实验十一：bean的作用域
 
 #### ①概念
 
@@ -948,7 +953,7 @@ public void testBeanScope(){
 }
 ```
 
-### 2.2.12、实验十二：bean的生命周期
+### 2.12、实验十二：bean的生命周期
 
 #### ①具体的生命周期过程
 
@@ -1082,7 +1087,7 @@ public class MyBeanProcessor implements BeanPostProcessor {
 >
 > <bean id="myBeanProcessor"class="com.atguigu.spring.process.MyBeanProcessor"/>
 
-### 2.2.13、实验十三：FactoryBean
+### 2.13、实验十三：FactoryBean
 
 #### ①简介
 
@@ -1283,7 +1288,7 @@ public void testUserFactoryBean(){
 }
 ```
 
-#### 2.2.14、实验十四：基于xml的自动装配
+#### 2.14、实验十四：基于xml的自动装配
 
 > 自动装配：
 >
@@ -1401,9 +1406,9 @@ public void testAutoWireByXML(){
 }
 ```
 
-## 2.3、基于注解管理bean
+## 3、基于注解管理bean
 
-### 2.3.1、实验一：标记与扫描
+### 3.1、实验一：标记与扫描
 
 #### ①注解
 
@@ -1580,7 +1585,7 @@ public void testAutowireByAnnotation(){
 >
 > UserService {}
 
-### 2.3.2、实验二：基于注解的自动装配
+### 3.2、实验二：基于注解的自动装配
 
 #### ①场景模拟
 
