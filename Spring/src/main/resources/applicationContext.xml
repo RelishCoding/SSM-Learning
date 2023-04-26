@@ -142,12 +142,14 @@
         <property name="sname" value="张三"></property>
     </bean>
 
-    <bean id="user" class="com.atguigu.ioc_xml.pojo.User" init-method="initMethod" destroy-method="destroyMethod">
+    <!--<bean id="user" class="com.atguigu.ioc_xml.pojo.User" init-method="initMethod" destroy-method="destroyMethod">
         <property name="id" value="1"></property>
         <property name="username" value="admin"></property>
         <property name="password" value="123456"></property>
         <property name="age" value="23"></property>
-    </bean>
+    </bean>-->
 
-    <bean id="myBeanPostProcessor" class="com.atguigu.ioc_xml.process.MyBeanPostProcessor"></bean>
+<!--    <bean id="myBeanPostProcessor" class="com.atguigu.ioc_xml.process.MyBeanPostProcessor"></bean>-->
+
+    <bean class="com.atguigu.ioc_xml.factory.UserFactoryBean"></bean>
 </beans>
