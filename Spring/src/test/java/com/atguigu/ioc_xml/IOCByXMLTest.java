@@ -1,5 +1,6 @@
 package com.atguigu.ioc_xml;
 
+import com.atguigu.ioc_xml.pojo.Clazz;
 import com.atguigu.ioc_xml.pojo.Person;
 import com.atguigu.ioc_xml.pojo.Student;
 import org.junit.Test;
@@ -28,7 +29,12 @@ public class IOCByXMLTest {
         //获取bean
 //        Student student = ioc.getBean("studentTwo", Student.class);
 //        Student student = ioc.getBean("studentThree", Student.class);
-        Student student = ioc.getBean("studentFour", Student.class);
+//        Student student = ioc.getBean("studentFour", Student.class);
+        /*Student student = ioc.getBean("studentFive", Student.class);
+        System.out.println(student);*/
+        /*Clazz clazz = ioc.getBean("clazzOne", Clazz.class);
+        System.out.println(clazz);*/
+        Student student = ioc.getBean("studentSix", Student.class);
         System.out.println(student);
     }
 }

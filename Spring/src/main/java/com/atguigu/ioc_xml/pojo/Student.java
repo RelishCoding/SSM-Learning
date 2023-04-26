@@ -1,11 +1,17 @@
 package com.atguigu.ioc_xml.pojo;
 
+import java.util.Arrays;
+import java.util.Map;
+
 public class Student implements Person{
     private Integer sid;
     private String sname;
     private Integer age;
     private String gender;
     private Double score;
+    private String[] hobby;
+    private Clazz clazz;
+    private Map<String,Teacher> teacherMap;
 
     public Student() {
     }
@@ -64,6 +70,30 @@ public class Student implements Person{
         this.score = score;
     }
 
+    public String[] getHobby() {
+        return hobby;
+    }
+
+    public void setHobby(String[] hobby) {
+        this.hobby = hobby;
+    }
+
+    public Clazz getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Clazz clazz) {
+        this.clazz = clazz;
+    }
+
+    public Map<String, Teacher> getTeacherMap() {
+        return teacherMap;
+    }
+
+    public void setTeacherMap(Map<String, Teacher> teacherMap) {
+        this.teacherMap = teacherMap;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
@@ -72,6 +102,9 @@ public class Student implements Person{
                 ", age=" + age +
                 ", gender='" + gender + '\'' +
                 ", score=" + score +
+                ", hobby=" + Arrays.toString(hobby) +
+                ", clazz=" + clazz +
+                ", teacherMap=" + teacherMap +
                 '}';
     }
 }

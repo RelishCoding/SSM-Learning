@@ -498,6 +498,7 @@ public Clazz getClazz() {
 public void setClazz(Clazz clazz) {
     this.clazz = clazz;
 }
+//修改toString方法
 ```
 
 #### ③方式一：引用外部已声明的bean
@@ -707,10 +708,12 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
     <property name="teacherId" value="10010"></property>
     <property name="teacherName" value="大宝"></property>
 </bean>
+
 <bean id="teacherTwo" class="com.atguigu.spring.bean.Teacher">
     <property name="teacherId" value="10086"></property>
     <property name="teacherName" value="二宝"></property>
 </bean>
+
 <bean id="studentFour" class="com.atguigu.spring.bean.Student">
     <property name="id" value="1004"></property>
     <property name="name" value="赵六"></property>
@@ -727,18 +730,8 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
     </property>
     <property name="teacherMap">
         <map>
-            <entry>
-                <key>
-                    <value>10010</value>
-                </key>
-                <ref bean="teacherOne"></ref>
-            </entry>
-            <entry>
-                <key>
-                    <value>10086</value>
-                </key>
-                <ref bean="teacherTwo"></ref>
-            </entry>
+            <entry key="10010" value-ref="teacherOne"></entry>
+            <entry key="10086" value-ref="teacherTwo"></entry>
         </map>
     </property>
 </bean>
@@ -753,26 +746,19 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
     <ref bean="studentTwo"></ref>
     <ref bean="studentThree"></ref>
 </util:list>
+
 <!--map集合类型的bean-->
 <util:map id="teacherMap">
-    <entry>
-        <key>
-            <value>10010</value>
-        </key>
-        <ref bean="teacherOne"></ref>
-    </entry>
-    <entry>
-        <key>
-            <value>10086</value>
-        </key>
-        <ref bean="teacherTwo"></ref>
-    </entry>
+    <entry key="10010" value-ref="teacherOne"></entry>
+    <entry key="10086" value-ref="teacherTwo"></entry>
 </util:map>
+
 <bean id="clazzTwo" class="com.atguigu.spring.bean.Clazz">
     <property name="clazzId" value="4444"></property>
     <property name="clazzName" value="Javaee0222"></property>
     <property name="students" ref="students"></property>
 </bean>
+
 <bean id="studentFour" class="com.atguigu.spring.bean.Student">
     <property name="id" value="1004"></property>
     <property name="name" value="赵六"></property>
@@ -791,7 +777,7 @@ public void setTeacherMap(Map<String, Teacher> teacherMap) {
 </bean>
 ```
 
-> 使用util:list、util:map标签必须引入相应的命名空间，可以通过idea的提示功能选择
+> 使用util:list、util:map标签必须引入相应的命名空间，可以通过 idea 的提示功能选择
 
 ### 2.9、实验九：p命名空间
 
@@ -836,7 +822,7 @@ jdbc.driver=com.mysql.cj.jdbc.Driver
 
 ```xml
 <!-- 引入外部属性文件 -->
-<context:property-placeholder location="classpath:jdbc.properties"/>
+<context:property-placeholder location="jdbc.properties"></context:property-placeholder>
 ```
 
 #### ④配置bean
@@ -884,10 +870,10 @@ public void testDataSource() throws SQLException {
 
 ```java
 public class User {
-private Integer id;
-private String username;
-private String password;
-private Integer age;
+    private Integer id;
+    private String username;
+    private String password;
+    private Integer age;
     public User() {
     }
     public User(Integer id, String username, String password, Integer age) {
@@ -935,9 +921,13 @@ private Integer age;
 #### ③配置bean
 
 ```xml
-<!-- scope属性：取值singleton（默认值），bean在IOC容器中只有一个实例，IOC容器初始化时创建
-对象 -->
-<!-- scope属性：取值prototype，bean在IOC容器中可以有多个实例，getBean()时创建对象 -->
+<!--
+    scope：设置bean的作用域，有两个属性：
+    scope="singleton|prototype"
+    singleton(单例)(默认值):表示获取该bean所对应的对象都是同一个，IOC容器初始化时创建对象
+    singleton（多例）:表示获取该bean所对应的对象都不是同一个，getBean()时创建对象
+-->
+
 <bean class="com.atguigu.bean.User" scope="prototype"></bean>
 ```
 
@@ -1026,7 +1016,7 @@ public class User {
 }
 ```
 
-> 注意其中的initMethod()和destroyMethod()，可以通过配置bean指定为初始化和销毁的方法
+> 注意其中的 initMethod() 和 destroyMethod()，可以通过配置 bean 的 init-method 和destroy-method属性指定为初始化和销毁的方法
 
 #### ③配置bean
 
@@ -1044,8 +1034,23 @@ public class User {
 #### ④测试
 
 ```java
+/**
+ * 1、实例化
+ * 2、依赖注入
+ * 3、后置处理器的postProcessBeforeInitialization方法
+ * 4、初始化，需要通过bean的init-method属性指定初始化的方法
+ * 5、后置处理器的postProcessAfterInitialization方法
+ * 6、IOC容器关闭时销毁，需要通过bean的destroy-method属性指定销毁的方法
+ *
+ * 注意：
+ * bean的作用域为单例时，生命周期的前三个步骤会在获取IOC容器时执行
+ * bean的作用域为多例时，生命周期的前三个步骤会在获取bean容器时执行
+ */
+
 @Test
 public void testLife(){
+    //ConfigurableApplicationContext是ApplicaionContext的子接口，其中拓展了刷新和关闭容器的方法
+    //直接用 ClassPathXmlApplicationContext 也可以
     ClassPathXmlApplicationContext ac = newClassPathXmlApplicationContext("spring-lifecycle.xml");
     User bean = ac.getBean(User.class);
     System.out.println("生命周期：4、通过IOC容器获取bean并使用");
@@ -1063,19 +1068,22 @@ bean的后置处理器会在生命周期的初始化前后添加额外的操作�
 
 ```java
 package com.atguigu.spring.process;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+
 public class MyBeanProcessor implements BeanPostProcessor {
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-        throws BeansException {
-        System.out.println("☆☆☆" + beanName + " = " + bean);
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		//此方法在bean的生命周期初始化之前执行
+        System.out.println("MyBeanPostProcessor-->后置处理器postProcessBeforeInitialization");
         return bean;
     }
+    
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-        throws BeansException {
-        System.out.println("★★★" + beanName + " = " + bean);
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		//此方法在bean的生命周期初始化之后执行
+        System.out.println("MyBeanPostProcessor-->后置处理器postProcessAfterInitialization");
         return bean;
     }
 }
@@ -1083,9 +1091,10 @@ public class MyBeanProcessor implements BeanPostProcessor {
 
 在IOC容器中配置后置处理器：
 
-> <!-- bean的后置处理器要放入IOC容器才能生效 -->
->
-> <bean id="myBeanProcessor"class="com.atguigu.spring.process.MyBeanProcessor"/>
+```xml
+<!-- bean的后置处理器要放入IOC容器才能生效 -->
+<bean id="myBeanProcessor"class="com.atguigu.spring.process.MyBeanProcessor"></bean>
+```
 
 ### 2.13、实验十三：FactoryBean
 

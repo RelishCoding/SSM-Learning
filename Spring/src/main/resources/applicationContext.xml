@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util
+       https://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
     <!--bean：配置一个bean对象，将对象交给IOC容器管理
         属性：
         id：bean的唯一标识，不能重复
@@ -43,4 +49,105 @@
             <null/>
         </property>
     </bean>
+
+    <bean id="studentFive" class="com.atguigu.ioc_xml.pojo.Student">
+        <property name="sid" value="1004"></property>
+        <property name="sname" value="赵六"></property>
+        <property name="age" value="26"></property>
+        <property name="gender" value="男"></property>
+        <!-- ref引用IOC容器中的某个bean的id -->
+<!--        <property name="clazz" ref="clazzOne"></property>-->
+        <!-- 级联的方式，要保证提前为clazz属性赋值或者实例化 -->
+        <!--<property name="clazz.cid" value="2222"></property>
+        <property name="clazz.cname" value="远大前程班"></property>-->
+        <property name="clazz">
+            <!-- 内部bean只能在当前bean的内部使用，不能直接通过IOC容器获取 -->
+            <bean id="clazzInner" class="com.atguigu.ioc_xml.pojo.Clazz">
+                <property name="cid" value="2222"></property>
+                <property name="cname" value="远大前程班"></property>
+            </bean>
+        </property>
+        <property name="hobby">
+            <array>
+                <value>抽烟</value>
+                <value>喝酒</value>
+                <value>烫头</value>
+            </array>
+        </property>
+        <!--<property name="teacherMap">
+            <map>
+                <entry key="10086" value-ref="teacherOne"></entry>
+                <entry key="10010" value-ref="teacherTwo"></entry>
+            </map>
+        </property>-->
+        <property name="teacherMap" ref="teacherMap"></property>
+    </bean>
+
+    <bean id="clazzOne" class="com.atguigu.ioc_xml.pojo.Clazz">
+        <property name="cid" value="1111"></property>
+        <property name="cname" value="最强王者班"></property>
+        <!--<property name="students">
+            <list>
+                <ref bean="studentOne"></ref>
+                <ref bean="studentTwo"></ref>
+                <ref bean="studentThree"></ref>
+            </list>
+        </property>-->
+        <property name="students" ref="studentList"></property>
+    </bean>
+
+    <!-- 配置一个集合类型的bean，需要使用util的约束 -->
+    <util:list id="studentList">
+        <ref bean="studentOne"></ref>
+        <ref bean="studentTwo"></ref>
+        <ref bean="studentThree"></ref>
+    </util:list>
+
+    <bean id="teacherOne" class="com.atguigu.ioc_xml.pojo.Teacher">
+        <property name="tid" value="10086"></property>
+        <property name="tname" value="大宝"></property>
+    </bean>
+
+    <bean id="teacherTwo" class="com.atguigu.ioc_xml.pojo.Teacher">
+        <property name="tid" value="10010"></property>
+        <property name="tname" value="小宝"></property>
+    </bean>
+
+    <util:map id="teacherMap">
+        <entry key="10086" value-ref="teacherOne"></entry>
+        <entry key="10010" value-ref="teacherTwo"></entry>
+    </util:map>
+
+    <bean id="studentSix" class="com.atguigu.ioc_xml.pojo.Student"
+        p:sid="1005" p:sname="小明" p:teacherMap-ref="teacherMap"></bean>
+
+    <!-- 引入jdbc.properties，之后可以用过${key}的方式访问value -->
+    <context:property-placeholder location="jdbc.properties"></context:property-placeholder>
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!--
+        scope：设置bean的作用域
+        scope="singleton|prototype"
+        singleton（单例）:表示获取该bean所对应的对象都是同一个
+        singleton（多例）:表示获取该bean所对应的对象都不是同一个
+    -->
+    <bean id="student" class="com.atguigu.ioc_xml.pojo.Student" scope="prototype">
+        <property name="sid" value="1001"></property>
+        <property name="sname" value="张三"></property>
+    </bean>
+
+    <bean id="user" class="com.atguigu.ioc_xml.pojo.User" init-method="initMethod" destroy-method="destroyMethod">
+        <property name="id" value="1"></property>
+        <property name="username" value="admin"></property>
+        <property name="password" value="123456"></property>
+        <property name="age" value="23"></property>
+    </bean>
+
+    <bean id="myBeanPostProcessor" class="com.atguigu.ioc_xml.process.MyBeanPostProcessor"></bean>
 </beans>
