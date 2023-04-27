@@ -1410,25 +1410,22 @@ public class AutowireByXMLTest {
 
 #### ②配置bean
 
-> 使用bean标签的autowire属性设置自动装配效果
+> 通过使用 bean 标签的 autowire 属性设置自动装配的策略
 >
-> 自动装配方式：byType
+> 自动装配方式：
 >
-> byType：根据类型匹配IOC容器中的某个兼容类型的bean，为属性自动赋值
+> * no、default：表示不装配，即bean中的属性不会自动匹配某个bean为属性赋值，此时属性使用默认值
 >
-> 若在IOC中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即值为默认值
->
-> null
->
-> 若在IOC中，有多个兼容类型的bean能够为属性赋值，则抛出异常
->
-> NoUniqueBeanDefinitionException
+> * byType：根据要赋值的属性的类型，在 IOC 容器中匹配某个兼容类型的bean，为属性自动赋值
+>  * 若在 IOC 中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即属性使用默认值null
+>   * 若在 IOC 中，有多个兼容类型的bean能够为属性赋值，则抛出异常 NoUniqueBeanDefinitionException
+>  * 总结：当使用byType实现自动装配时，IOC容器中有且只有一个类型匹配的bean能够为属性赋值
 
 ```xml
-<bean id="userController"class="com.atguigu.autowire.xml.controller.UserController" autowire="byType">
-</bean>
-<bean id="userService"class="com.atguigu.autowire.xml.service.impl.UserServiceImpl" autowire="byType">
-</bean>
+<bean id="userController"class="com.atguigu.autowire.xml.controller.UserController" autowire="byType"></bean>
+
+<bean id="userService"class="com.atguigu.autowire.xml.service.impl.UserServiceImpl" autowire="byType"></bean>
+
 <bean id="userDao" class="com.atguigu.autowire.xml.dao.impl.UserDaoImpl"></bean>
 ```
 
