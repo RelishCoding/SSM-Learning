@@ -1414,11 +1414,14 @@ public class AutowireByXMLTest {
 >
 > 自动装配方式：
 >
-> * no、default：表示不装配，即bean中的属性不会自动匹配某个bean为属性赋值，此时属性使用默认值
+> 1. no、default：表示不装配，即bean中的属性不会自动匹配某个bean为属性赋值，此时属性使用默认值
 >
-> * byType：根据要赋值的属性的类型，在 IOC 容器中匹配某个兼容类型的bean，为属性自动赋值
->  * 若在 IOC 中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即属性使用默认值null
+> 2. byType：根据要赋值的属性的类型，在 IOC 容器中匹配某个兼容类型的bean，为属性自动赋值
+>
+> * 若在 IOC 中，没有任何一个兼容类型的bean能够为属性赋值，则该属性不装配，即属性使用默认值null
+>
 >   * 若在 IOC 中，有多个兼容类型的bean能够为属性赋值，则抛出异常 NoUniqueBeanDefinitionException
+>
 >  * 总结：当使用byType实现自动装配时，IOC容器中有且只有一个类型匹配的bean能够为属性赋值
 
 ```xml
@@ -1429,21 +1432,28 @@ public class AutowireByXMLTest {
 <bean id="userDao" class="com.atguigu.autowire.xml.dao.impl.UserDaoImpl"></bean>
 ```
 
-> 自动装配方式：byName
+> 3. 自动装配方式：byName
 >
-> byName：将自动装配的属性的属性名，作为bean的id在IOC容器中匹配相对应的bean进行赋值
+> byName：将要赋值的属性的属性名，作为 bean 的 id 在 IOC 容器中匹配相对应的bean进行赋值
+>
+> 当类型匹配的bean有多个时，此时可以使用 byName 实现自动装配
 
 ```xml
-<bean id="userController"class="com.atguigu.autowire.xml.controller.UserController" autowire="byName">
+<bean id="userController" class="com.atguigu.ioc_xml.controller.UserController" autowire="byName">
+    <!--<property name="userService" ref="userService"></property>-->
 </bean>
-<bean id="userService"class="com.atguigu.autowire.xml.service.impl.UserServiceImpl" autowire="byName">
+
+<bean id="userService" class="com.atguigu.ioc_xml.service.impl.UserServiceImpl" autowire="byName">
+    <!--<property name="userDao" ref="userDao"></property>-->
 </bean>
-<bean id="userServiceImpl"class="com.atguigu.autowire.xml.service.impl.UserServiceImpl" autowire="byName">
+
+<bean id="service" class="com.atguigu.ioc_xml.service.impl.UserServiceImpl" autowire="byName">
+    <!--<property name="userDao" ref="userDao"></property>-->
 </bean>
-<bean id="userDao" class="com.atguigu.autowire.xml.dao.impl.UserDaoImpl">
-</bean>
-<bean id="userDaoImpl" class="com.atguigu.autowire.xml.dao.impl.UserDaoImpl">
-</bean>
+
+<bean id="userDao" class="com.atguigu.ioc_xml.dao.impl.UserDaoImpl"></bean>
+
+<bean id="dao" class="com.atguigu.ioc_xml.dao.impl.UserDaoImpl"></bean>
 ```
 
 #### ③测试
@@ -1463,11 +1473,9 @@ public void testAutoWireByXML(){
 
 #### ①注解
 
-和 XML 配置文件一样，注解本身并不能执行，注解本身仅仅只是做一个标记，具体的功能是框架检测
+和 XML 配置文件一样，注解本身并不能执行，注解本身仅仅只是做一个标记，具体的功能是框架检测到注解标记的位置，然后针对这个位置按照注解标记的功能来执行具体操作。
 
-到注解标记的位置，然后针对这个位置按照注解标记的功能来执行具体操作。
-
-本质上：所有一切的操作都是Java代码来完成的，XML和注解只是告诉框架中的Java代码如何执行。
+本质上：所有一切的操作都是 Java 代码来完成的，XML 和注解只是告诉框架中的 Java 代码如何执行。
 
 举例：元旦联欢会要布置教室，蓝色的地方贴上元旦快乐四个字，红色的地方贴上拉花，黄色的地方贴上气球。
 
@@ -1505,9 +1513,13 @@ Spring 为了知道程序员在哪些地方标记了什么注解，就需要通�
 
 #### ⑤标识组件的常用注解
 
-> @Component：将类标识为普通组件 @Controller：将类标识为控制层组件 @Service：将类标
+> @Component：将类标识为普通组件 
 >
-> 识为业务层组件 @Repository：将类标识为持久层组件
+> @Controller：将类标识为控制层组件 
+>
+> @Service：将类标识为业务层组件 
+>
+> @Repository：将类标识为持久层组件
 
 问：以上四个注解有什么关系和区别？
 
@@ -1515,9 +1527,7 @@ Spring 为了知道程序员在哪些地方标记了什么注解，就需要通�
 
 通过查看源码我们得知，@Controller、@Service、@Repository这三个注解只是在@Component注解的基础上起了三个新的名字。
 
-对于Spring使用IOC容器管理这些组件来说没有区别。所以@Controller、@Service、@Repository这
-
-三个注解只是给开发人员看的，让我们能够便于分辨组件的作用。
+对于 Spring 使用 IOC 容器管理这些组件来说没有区别。所以 @Controller、@Service、@Repository这三个注解只是给开发人员看的，让我们能够便于分辨组件的作用。
 
 注意：虽然它们本质上一样，但是为了代码的可读性，为了程序结构严谨我们肯定不能随便胡乱标记。
 
@@ -1566,8 +1576,7 @@ public class UserDaoImpl implements UserDao {
 情况一：最基本的扫描方式
 
 ```xml
-<context:component-scan base-package="com.atguigu">
-</context:component-scan>
+<context:component-scan base-package="com.atguigu.spring"></context:component-scan>
 ```
 
 情况二：指定要排除的组件
