@@ -1583,14 +1583,15 @@ public class UserDaoImpl implements UserDao {
 
 ```xml
 <context:component-scan base-package="com.atguigu">
-    <!-- context:exclude-filter标签：指定排除规则 -->
+    <!-- context:exclude-filter标签：排除扫描,指定排除规则 -->
     <!--
-        type：设置排除或包含的依据
-        type="annotation"，根据注解排除，expression中设置要排除的注解的全类名
-        type="assignable"，根据类型排除，expression中设置要排除的类型的全类名
+        type：设置排除扫描的方式
+        type=“annotation | assignable”
+        type="annotation"：根据注解的类型进行排除，expression中需要设置要排除的注解的全类名
+        type="assignable"：根据类的类型进行排除，expression中需要设置要排除的类的全类名
     -->
-    <context:exclude-filter type="annotation"expression="org.springframework.stereotype.Controller"/>
-    <!--<context:exclude-filter type="assignable"expression="com.atguigu.controller.UserController"/>-->
+    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    <!--<context:exclude-filter type="assignable" expression="com.atguigu.controller.UserController"/>-->
 </context:component-scan>
 ```
 
@@ -1598,16 +1599,17 @@ public class UserDaoImpl implements UserDao {
 
 ```xml
 <context:component-scan base-package="com.atguigu" use-default-filters="false">
-    <!-- context:include-filter标签：指定在原有扫描规则的基础上追加的规则 -->
-    <!-- use-default-filters属性：取值false表示关闭默认扫描规则 -->
-    <!-- 此时必须设置use-default-filters="false"，因为默认规则即扫描指定包下所有类 -->
+    <!-- context:include-filter标签：包含扫描，指定在原有扫描规则的基础上追加的规则 -->
+    <!-- 注意：此时必须在context:component-scan标签中设置use-default-filters="false"，因为默认规则即扫描指定包下所有类 -->
+    <!--use-default-filters="true"（默认）：所设置的包下所有的类都需要扫描，此时可以使用扫描排除
+        use-default-filters="false"，所设置的包下所有的类都不需要扫描，此时可以使用包含扫描 -->
     <!--
         type：设置排除或包含的依据
         type="annotation"，根据注解排除，expression中设置要排除的注解的全类名
         type="assignable"，根据类型排除，expression中设置要排除的类型的全类名
      -->
-    <context:include-filter type="annotation"expression="org.springframework.stereotype.Controller"/>
-    <!--<context:include-filter type="assignable"expression="com.atguigu.controller.UserController"/>-->
+    <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    <!--<context:include-filter type="assignable" expression="com.atguigu.controller.UserController"/>-->
 </context:component-scan>
 ```
 
@@ -1629,43 +1631,37 @@ public void testAutowireByAnnotation(){
 
 #### ⑨组件所对应的bean的id
 
-在我们使用XML方式管理bean的时候，每个bean都有一个唯一标识，便于在其他地方引用。现在使用
+在我们使用 XML 方式管理 bean 的时候，每个 bean 都有一个唯一标识，便于在其他地方引用。现在使用注解后，每个组件仍然应该有一个唯一标识。
 
-注解后，每个组件仍然应该有一个唯一标识。
-
-> 默认情况
+> 默认情况：通过注解+扫描所配置的 bean 的 id，默认值为类的小驼峰，即类名的首字母小写的结果。例如：UserController类对应的 bean 的 id 就是 userController。
 >
-> 类名首字母小写就是bean的id。例如：UserController类对应的bean的id就是userController。
+> 自定义bean的id：可通过标识组件的注解的 value 属性值设置 bean 的自定义的 id
 >
-> 自定义bean的id
+> 如：@Service("userService")//默认为userServiceImpl public class UserServiceImpl implements  UserService {}
 >
-> 可通过标识组件的注解的value属性设置自定义的bean的id
->
-> @Service("userService")//默认为userServiceImpl public class UserServiceImpl implements
->
-> UserService {}
 
 ### 3.2、实验二：基于注解的自动装配
 
 #### ①场景模拟
 
-> 参考基于xml的自动装配
+> 参考基于 xml 的自动装配
 >
-> 在UserController中声明UserService对象
+> 在 UserController 中声明 UserService 对象
 >
-> 在UserServiceImpl中声明UserDao对象
+> 在 UserServiceImpl 中声明 UserDao 对象
 
 #### ②@Autowired注解
 
-在成员变量上直接标记@Autowired注解即可完成自动装配，不需要提供setXxx()方法。以后我们在项
+@Autowired 是一个实现自动装配功能的注解
 
-目中的正式用法就是这样。
+在成员变量上直接标记 @Autowired 注解即可完成自动装配，不需要提供 setXxx() 方法。以后我们在项目中的正式用法就是这样。
 
 ```java
 @Controller
 public class UserController {
     @Autowired
     private UserService userService;
+    
     public void saveUser(){
         userService.saveUser();
     }
@@ -1676,10 +1672,12 @@ public class UserController {
 public interface UserService {
     void saveUser();
 }
+
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
+    
     @Override
     public void saveUser() {
         userDao.saveUser();
@@ -1705,16 +1703,22 @@ public class UserDaoImpl implements UserDao {
 
 #### ③@Autowired注解其他细节
 
-> @Autowired注解可以标记在构造器和set方法上
+> @Autowired 注解能够标识的位置
+>
+> * 标识在成员变量上，此时不需要设置成员变量的set方法
+> * 标识在 set 方法上
+> * 标识在为当前成员变量赋值的有参构造上
 
 ```java
 @Controller
 public class UserController {
     private UserService userService;
+    
     @Autowired
     public UserController(UserService userService){
         this.userService = userService;
     }
+    
     public void saveUser(){
         userService.saveUser();
     }
@@ -1725,10 +1729,12 @@ public class UserController {
 @Controller
 public class UserController {
     private UserService userService;
+    
     @Autowired
     public void setUserService(UserService userService){
         this.userService = userService;
     }
+    
     public void saveUser(){
         userService.saveUser();
     }
@@ -1739,36 +1745,67 @@ public class UserController {
 
 ![14](img\14.png)
 
-- 首先根据所需要的组件类型到IOC容器中查找
-  - 能够找到唯一的bean：直接执行装配
-  - 如果完全找不到匹配这个类型的bean：装配失败
-  - 和所需类型匹配的bean不止一个
-    - 没有@Qualifier注解：根据@Autowired标记位置成员变量的变量名作为bean的id进行匹配
-    - 能够找到：执行装配
-    - 找不到：装配失败
-    - 使用@Qualifier注解：根据@Qualifier注解中指定的名称作为bean的id进行匹配
-    - 能够找到：执行装配
-    - 找不到：装配失败
+- 首先根据所需要的组件类型到 IOC 容器中查找
+  - 能够找到唯一的 bean：直接执行装配
+  - 如果完全找不到匹配这个类型的 bean：装配失败
+  - 和所需类型匹配的 bean 不止一个
+    - 没有@Qualifier注解：根据 @Autowired 标记位置成员变量的变量名作为 bean 的 id 进行匹配
+      - 能够找到：执行装配
+      - 找不到：装配失败
+    - 使用 @Qualifier 注解：根据 @Qualifier 注解中指定的名称作为 bean 的 id 进行匹配
+      - 能够找到：执行装配
+      - 找不到：装配失败
+
+```
+@Autowired注解的原理
+a>默认通过byType的方式，在IOC容器中通过类型匹配某个bean为属性赋值
+b>若有多个类型匹配的bean，此时会自动转换为byName的方式实现自动装配的效果
+即将要赋值的属性的属性名作为bean的id匹配某个bean为属性赋值
+c>若byType和byName的方式都无法实现自装配，即IOC容器中有多个类型匹配的bean
+且这些bean的id和要复制的属性的属性名都不一致，此时抛异常：NoUniqueBeanDefinitionException
+d>此时可以在要赋值的属性上，添加一个注解@Qualifier
+通过该注解的value属性值，指定某个bean的id，将这个bean为属性赋值
+```
+
+```xml
+<bean id="service" class="com.atguigu.ioc_annotation.service.impl.UserServiceImpl"></bean>
+
+<bean id="dao" class="com.atguigu.ioc_annotation.dao.impl.UserDaoImpl"></bean>
+```
 
 ```java
 @Controller
 public class UserController {
     @Autowired
-    @Qualifier("userServiceImpl")
+    //@Qualifier("userServiceImpl")
+    @Qualifier("service")
     private UserService userService;
+    
     public void saveUser(){
         userService.saveUser();
     }
 }
 ```
 
-> @Autowired中有属性required，默认值为true，因此在自动装配无法找到相应的bean时，会装
+```java
+@Service
+public class UserServiceImpl implements UserService {
+    @Autowired
+    //@Qualifier("userDaoImpl")
+    @Qualifier("dao")
+    private UserDao userDao;
+
+    public void saveUser() {
+        userDao.saveUser();
+    }
+}
+```
+
+> 注意：若IOC容器中没有任何一个类型匹配的bean，此时抛出异常：NoSuchBeanDefinitionException
 >
-> 配失败
+> 在@Autowired中有个属性required，默认值为true，要求必须完成自动装配，因此在自动装配无法找到相应的bean时，会装配失败
 >
-> 可以将属性required的值设置为true，则表示能装就装，装不上就不装，此时自动装配的属性为
->
-> 默认值
+> 可以将属性required的值设置为false，则表示能装配则装配，无法装配则使用属性的默认值
 >
 > 但是实际开发时，基本上所有需要装配组件的地方都是必须装配的，用不上这个属性。
 
