@@ -1,6 +1,9 @@
-package com.atguigu.proxy;
+package com.atguigu.aop.annotation;
 
-public class CalculatorImpl implements Calculator{
+import org.springframework.stereotype.Component;
+
+@Component
+public class CalculatorImpl implements Calculator {
     public int add(int i, int j) {
         int result=i+j;
         System.out.println("方法内部，result："+result);

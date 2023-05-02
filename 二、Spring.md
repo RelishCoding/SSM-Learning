@@ -1956,9 +1956,11 @@ public class CalculatorLogImpl implements Calculator {
 public class CalculatorStaticProxy implements Calculator {
     // 将被代理的目标对象声明为成员变量
     private Calculator target;
+    
     public CalculatorStaticProxy(Calculator target) {
         this.target = target;
     }
+    
     @Override
     public int add(int i, int j) {
         // 附加功能由代理类中的代理方法来实现
@@ -1971,63 +1973,83 @@ public class CalculatorStaticProxy implements Calculator {
 }
 ```
 
-> 静态代理确实实现了解耦，但是由于代码都写死了，完全不具备任何的灵活性。就拿日志功能来
+测试：
+
+```java
+public class ProxyTest {
+    @Test
+    public void testProxy(){
+        CalculatorStaticProxy proxy=new CalculatorStaticProxy(new CalculatorImpl());
+        proxy.add(1,2);
+    }
+}
+```
+
+> 静态代理确实实现了解耦，但是由于代码都写死了，完全不具备任何的灵活性。就拿日志功能来说，将来其他地方也需要附加日志，那还得再声明更多个静态代理类，那就产生了大量重复的代码，日志功能还是分散的，没有统一管理。
 >
-> 说，将来其他地方也需要附加日志，那还得再声明更多个静态代理类，那就产生了大量重复的代
+> 提出进一步的需求：将日志功能集中到一个代理类中，将来有任何日志需求，都通过这一个代理类来实现。这就需要使用动态代理技术了。
 >
-> 码，日志功能还是分散的，没有统一管理。
->
-> 提出进一步的需求：将日志功能集中到一个代理类中，将来有任何日志需求，都通过这一个代理
->
-> 类来实现。这就需要使用动态代理技术了。
 
 ### 3.2.3、动态代理
+
+动态代理有两种：
+
+1. jdk动态代理，要求必须有接口，最终生成的代理类和目标类实现相同的接口，在com.sun.proxy包下，类名称为$proxy2
+
+2. cglib动态代理，最终生成的代理类会自动继承目标类，并且和目标类在相同的包下 
 
 ![19](img\19.png)
 
 生产代理对象的工厂类：
 
 ```java
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+
 public class ProxyFactory {
     private Object target;
+    
     public ProxyFactory(Object target) {
         this.target = target;
     }
+    
     public Object getProxy(){
         /**
-         * newProxyInstance()：创建一个代理实例
+         * newProxyInstance()方法：创建一个代理实例
          * 其中有三个参数：
-         * 1、classLoader：加载动态生成的代理类的类加载器
-         * 2、interfaces：目标对象实现的所有接口的class对象所组成的数组
-         * 3、invocationHandler：设置代理对象实现目标对象方法的过程，即代理类中如何重写接口中的抽象方法
+         * 1、ClassLoader loader：指定加载动态生成的代理类的类加载器
+         * 2、Class<?>[] interfaces：获取目标对象实现的所有接口的class对象所组成的数组
+         * 3、InvocationHandler invocationHandler：设置代理对象实现目标对象方法的过程，
+         	即代理类中如何重写接口中的抽象方法
          */
         ClassLoader classLoader = target.getClass().getClassLoader();
         Class<?>[] interfaces = target.getClass().getInterfaces();
         InvocationHandler invocationHandler = new InvocationHandler() {
             @Override
-            public Object invoke(Object proxy, Method method, Object[] args)
-                throws Throwable {
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 /**
                  * proxy：代理对象
                  * method：代理对象需要实现的方法，即其中需要重写的方法
-                 * args：method所对应方法的参数
+                 * args：method所对应方法（即要执行的方法）的参数列表
                  */
                 Object result = null;
                 try {
-                    System.out.println("[动态代理][日志] "+method.getName()+"，参数："+ Arrays.toString(args));
-                     result = method.invoke(target, args);
-                     System.out.println("[动态代理][日志] "+method.getName()+"，结 果："+ result);
-                 } catch (Exception e) {
-                   e.printStackTrace();
-                   System.out.println("[动态代理][日志] "+method.getName()+"，异常："+e.getMessage());
-                  } finally {
-                      System.out.println("[动态代理][日志] "+method.getName()+"，方法执行完毕");
-                  }
-                  return result;
-               }   
-            };    
-            return Proxy.newProxyInstance(classLoader, interfaces,invocationHandler);
-      }
+                	System.out.println("[动态代理][日志] "+method.getName()+"，参数："+ Arrays.toString(args));
+                    result = method.invoke(target, args);
+                    System.out.println("[动态代理][日志] "+method.getName()+"，结 果："+ result);
+                } catch (Exception e) {
+                	e.printStackTrace();
+                    System.out.println("[动态代理][日志] "+method.getName()+"，异常："+e.getMessage());
+                } finally {
+                	System.out.println("[动态代理][日志] "+method.getName()+"，方法执行完毕");
+                }
+                return result;
+            }   
+        };    
+        return Proxy.newProxyInstance(classLoader, interfaces,invocationHandler);
+    }
 }                                     
 ```
 
@@ -2038,8 +2060,8 @@ public class ProxyFactory {
 public void testDynamicProxy(){
     ProxyFactory factory = new ProxyFactory(new CalculatorLogImpl());
     Calculator proxy = (Calculator) factory.getProxy();
-    proxy.div(1,0);
-    //proxy.div(1,1);
+    proxy.add(1,2);
+    //proxy.div(1,0);
 }
 ```
 
@@ -2065,9 +2087,7 @@ AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领�
 - 返回通知：在被代理的目标方法**成功结束**后执行（**寿终正寝**）
 - 异常通知：在被代理的目标方法**异常结束**后执行（**死于非命**）
 - 后置通知：在被代理的目标方法**最终结束**后执行（**盖棺定论**）
-- 环绕通知：使用try...catch...finally结构围绕**整个**被代理的目标方法，包括上面四种通知对应的所
-
-有位置![21](img\21.png)
+- 环绕通知：使用try...catch...finally结构围绕**整个**被代理的目标方法，包括上面四种通知对应的所有位置![21](img\21.png)
 
 #### ③切面
 
@@ -2099,9 +2119,7 @@ AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领�
 
 Spring 的 AOP 技术可以通过切入点定位到特定的连接点。
 
-切点通过 org.springframework.aop.Pointcut 接口进行描述，它使用类和方法作为连接点的查询条
-
-件。
+切点通过 org.springframework.aop.Pointcut 接口进行描述，它使用类和方法作为连接点的查询条件。
 
 ### 3.3.3、作用
 
@@ -2115,13 +2133,11 @@ Spring 的 AOP 技术可以通过切入点定位到特定的连接点。
 
 ![24](img\24.png)
 
-- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因
-
-为这个技术要求**代理对象和目标对象实现同样的接口**（兄弟两个拜把子模式）。
+- 动态代理（InvocationHandler）：JDK原生的实现方式，需要被代理的目标类必须实现接口。因为这个技术要求**代理对象和目标对象实现同样的接口**（兄弟两个拜把子模式）。
 
 - cglib：通过**继承被代理的目标类**（认干爹模式）实现代理，所以不需要目标类实现接口。
 
-- AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最终效果是动态的。weaver就是织入器。Spring只是借用了AspectJ中的注解。
+- AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最终效果是动态的。weaver 就是织入器。Spring 只是借用了 AspectJ 中的注解。
 
 ### 3.4.2、准备工作
 
@@ -2162,18 +2178,21 @@ public class CalculatorPureImpl implements Calculator {
         System.out.println("方法内部 result = " + result);
         return result;
     }
+    
     @Override
     public int sub(int i, int j) {
         int result = i - j;
         System.out.println("方法内部 result = " + result);
         return result;
     }
+    
     @Override
     public int mul(int i, int j) {
         int result = i * j;
         System.out.println("方法内部 result = " + result);
         return result;
     }
+    
     @Override
     public int div(int i, int j) {
         int result = i / j;
@@ -2186,32 +2205,36 @@ public class CalculatorPureImpl implements Calculator {
 ### 3.4.3、创建切面类并配置
 
 ```java
-// @Aspect表示这个类是一个切面类
+// @Aspect表示这个类是一个切面类，将当前组件标识为切面
 @Aspect
 // @Component注解保证这个切面类能够放入IOC容器
 @Component
 public class LogAspect {
     @Before("execution(public int com.atguigu.aop.annotation.CalculatorImpl.*(..))")
-public void beforeMethod(JoinPoint joinPoint){
-	String methodName = joinPoint.getSignature().getName();
-	String args = Arrays.toString(joinPoint.getArgs());
-	System.out.println("Logger-->前置通知，方法名："+methodName+"，参数："+args);
+	public void beforeMethod(JoinPoint joinPoint){
+        String methodName = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
+        System.out.println("Logger-->前置通知，方法名："+methodName+"，参数："+args);
 	}
+    
     @After("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
 	public void afterMethod(JoinPoint joinPoint){
 		String methodName = joinPoint.getSignature().getName();
 		System.out.println("Logger-->后置通知，方法名："+methodName);
 	}
+    
     @AfterReturning(value = "execution(*com.atguigu.aop.annotation.CalculatorImpl.*(..))", returning = "result")
 	public void afterReturningMethod(JoinPoint joinPoint, Object result){
 		String methodName = joinPoint.getSignature().getName();
 		System.out.println("Logger-->返回通知，方法名："+methodName+"，结果："+result);
-	} 
+	}
+    
     @AfterThrowing(value = "execution(*com.atguigu.aop.annotation.CalculatorImpl.*(..))", throwing = "ex")
 	public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex){
 		String methodName = joinPoint.getSignature().getName();
 		System.out.println("Logger-->异常通知，方法名："+methodName+"，异常："+ex);
 	}
+    
     @Around("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
 	public Object aroundMethod(ProceedingJoinPoint joinPoint){
         String methodName = joinPoint.getSignature().getName();
