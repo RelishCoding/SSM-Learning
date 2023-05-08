@@ -2210,8 +2210,10 @@ public class CalculatorPureImpl implements Calculator {
 // @Component注解保证这个切面类能够放入IOC容器
 @Component
 public class LogAspect {
+    //@Before("execution(public int com.atguigu.aop.annotation.CalculatorImpl.add(int,int))")
     @Before("execution(public int com.atguigu.aop.annotation.CalculatorImpl.*(..))")
 	public void beforeMethod(JoinPoint joinPoint){
+        //System.out.println("LoggerAspect,前置通知");
         String methodName = joinPoint.getSignature().getName();
         String args = Arrays.toString(joinPoint.getArgs());
         System.out.println("Logger-->前置通知，方法名："+methodName+"，参数："+args);
@@ -2259,26 +2261,33 @@ public class LogAspect {
 在Spring的配置文件中配置：
 
 ```xml
-   <!--
-        基于注解的AOP的实现：
-        1、将目标对象和切面交给IOC容器管理（注解+扫描）
-        2、开启AspectJ的自动代理，为目标对象自动生成代理
-        3、将切面类通过注解@Aspect标识
-	-->
-	<context:component-scan base-package="com.atguigu.aop.annotation">
-</context:component-scan>
-	<aop:aspectj-autoproxy />
+<!--
+    基于注解的AOP的实现：
+    1、将目标对象和切面交给IOC容器管理（注解+扫描）
+    2、开启AspectJ的自动代理，为目标对象自动生成代理
+    3、将切面类通过注解@Aspect标识
+-->
+<context:component-scan base-package="com.atguigu.aop.annotation"></context:component-scan>
+
+<!--开启基于注解的AOP-->
+<aop:aspectj-autoproxy />
 ```
+
+> AOP的注意事项：
+>
+> 1、切面类和目标类都需要交给IOC容器管理
+>
+> 2、切面类必须通过@Aspect注解标识为一个切面
+>
+> 3、在Spring配置文件中设置<aop:aspectj-autoproxy />开启基于注解的AOP
 
 ### 3.4.4、各种通知
 
 - 前置通知：使用@Before注解标识，在被代理的目标方法**前**执行
-- 返回通知：使用@AfterReturning注解标识，在被代理的目标方法**成功结束**后执行（**寿终正寝**）
-- 异常通知：使用@AfterThrowing注解标识，在被代理的目标方法**异常结束**后执行（**死于非命**）
-- 后置通知：使用@After注解标识，在被代理的目标方法**最终结束**后执行（**盖棺定论**）
-- 环绕通知：使用@Around注解标识，使用try...catch...finally结构围绕**整个**被代理的目标方法，包
-
-括上面四种通知对应的所有位置
+- 返回通知：使用@AfterReturning注解标识，在被代理的目标方法**成功结束**后执行（**寿终正寝**），即在返回值之后执行
+- 异常通知：使用@AfterThrowing注解标识，在被代理的目标方法**异常结束**后执行（**死于非命**），即在目标对象方法的catch字句中执行
+- 后置通知：使用@After注解标识，在被代理的目标方法**最终结束**后执行（**盖棺定论**），即在目标对象方法的finally字句中执行
+- 环绕通知：使用@Around注解标识，使用try...catch...finally结构围绕**整个**被代理的目标方法，包括上面四种通知对应的所有位置
 
 > 各种通知的执行顺序：
 >
@@ -2302,28 +2311,44 @@ public class LogAspect {
 #### ②语法细节
 
 - 用*号代替“权限修饰符”和“返回值”部分表示“权限修饰符”和“返回值”不限
-- 在包名的部分，一个“*”号只能代表包的层次结构中的一层，表示这一层是任意的。*
-  - *例如：*.Hello匹配com.Hello，不匹配com.atguigu.Hello
-- 在包名的部分，使用“*..”表示包名任意、包的层次深度任意*
-- *在类名的部分，类名部分整体用*号代替，表示类名任意
-- 在类名的部分，可以使用*号代替类名的一部分*
-  - *例如：*Service匹配所有名称以Service结尾的类或接口
-- 在方法名部分，可以使用*号表示方法名任意*
-- *在方法名部分，可以使用*号代替方法名的一部分
-  - 例如：*Operation匹配所有方法名以Operation结尾的方法
-- ​	在方法参数列表部分，使用(..)表示参数列表任意
-- 在方法参数列表部分，使用(int,..)表示参数列表以一个int类型的参数开头
+- 在包名的部分，一个 \* 号只能代表包的层次结构中的一层，表示这一层是任意的。
+  - 例如：\*.Hello匹配com.Hello，不匹配com.atguigu.Hello
+- 在包名的部分，使用 \*.. 表示包名任意、包的层次深度任意
+- 在类名的部分，类名部分整体用 \* 号代替，表示类名任意
+- 在类名的部分，可以使用 \* 号代替类名的一部分
+  - 例如：\*Service匹配所有名称以Service结尾的类或接口
+- 在方法名部分，可以使用 \* 号表示方法名任意
+- 在方法名部分，可以使用 \* 号代替方法名的一部分
+  - 例如：\*Operation匹配所有方法名以Operation结尾的方法
+- 在方法参数列表部分，使用 (..) 表示参数列表任意
+- 在方法参数列表部分，使用 (int,..) 表示参数列表以一个int类型的参数开头
 - 在方法参数列表部分，基本数据类型和对应的包装类型是不一样的
   - 切入点表达式中使用 int 和实际方法中 Integer 是不匹配的
 - 在方法返回值部分，如果想要明确指定一个返回值类型，那么必须同时写明权限修饰符
-  - 例如：execution(public int *..*Service.*(.., int)) 正确*
-  - *例如：execution(* int *..*Service.*(.., int)) 错误
+  - 例如：execution(public int *..*Service.\*(.., int)) 正确
+  - 例如：execution(\* int *..*Service.*(.., int)) 错误
 
 ![26](img\26.png)
+
+> 切入点表达式：设置在标识通知的注解的value属性中，语法：
+>
+> execution(public int com.atguigu.aop.annotation.CalculatorImpl.add(int,int)
+>
+> execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..)
+>
+> 第一个*表示任意的访问修饰符和返回值类型
+>
+> 第二个*表示类中任意的方法
+>
+> ..表示任意的参数列表
+>
+> 类的地方也可以使用*，表示包下所有的类
 
 ### 3.4.6、重用切入点表达式
 
 #### ①声明
+
+@Pointcut声明一个公共的切入点表达式
 
 ```java
 @Pointcut("execution(* com.atguigu.aop.annotation.*.*(..))")
@@ -2356,26 +2381,33 @@ public void beforeMethod(JoinPoint joinPoint){
 
 #### ①获取连接点信息
 
-获取连接点信息可以在通知方法的参数位置设置JoinPoint类型的形参
+在通知方法的参数位置，设置JoinPoint类型的参数，就可以获取连接点所对应方法的信息
 
 ```java
-@Before("execution(public int com.atguigu.aop.annotation.CalculatorImpl.*(..))")
+//@Before("execution(public int com.atguigu.aop.annotation.CalculatorImpl.*(..))")
+@Before("pointCut()")
 public void beforeMethod(JoinPoint joinPoint){
-    //获取连接点的签名信息
-    String methodName = joinPoint.getSignature().getName();
-    //获取目标方法到的实参信息
+	//获取连接点所对应方法的签名信息
+    Signature signature = joinPoint.getSignature();
+    //String methodName = joinPoint.getSignature().getName();
+    //获取连接点所对应方法的参数
     String args = Arrays.toString(joinPoint.getArgs());
-    System.out.println("Logger-->前置通知，方法名："+methodName+"，参数："+args);
+    System.out.println("Logger-->前置通知，方法名："+signature.getName()+"，参数："+args);
+    //System.out.println("Logger-->前置通知，方法名："+methodName+"，参数："+args);
 }
 ```
 
 #### ②获取目标方法的返回值
 
-@AfterReturning中的属性returning，用来将通知方法的某个形参，接收目标方法的返回值
+在返回通知中若要获取目标对象方法的返回值，只需要通过@AfterReturning注解的returning属性，就可以将通知方法的某个参数指定为接收目标对象的返回值的参数。
+
+即 @AfterReturning中的属性returning，用来将通知方法的某个形参，接收目标方法的返回值
 
 ```java
-@AfterReturning(value = "execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))", returning = "result")
-    public void afterReturningMethod(JoinPoint joinPoint, Object result){
+//@AfterReturning(value = "execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))", returning = "result")
+@AfterReturning(value = "pointCut()",returning = "result")
+public void afterReturningMethod(JoinPoint joinPoint, Object result){
+    //System.out.println("LoggerAspect，返回通知");
     String methodName = joinPoint.getSignature().getName();
     System.out.println("Logger-->返回通知，方法名："+methodName+"，结果："+result);
 }
@@ -2383,11 +2415,14 @@ public void beforeMethod(JoinPoint joinPoint){
 
 #### ③获取目标方法的异常
 
-@AfterThrowing中的属性throwing，用来将通知方法的某个形参，接收目标方法的异常
+在异常通知中若要获取目标对象方法的异常，只需要通过@AfterThrowing注解的throwing属性，就可以将通知方法的某个参数指定为接收目标对象出现的异常的参数。
+
+即 @AfterThrowing中的属性throwing，用来将通知方法的某个形参，接收目标方法的异常
 
 ```java
-@AfterThrowing(value = "execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))", throwing = "ex")
-    public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex){
+//@AfterThrowing(value = "execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))", throwing = "ex")
+@AfterThrowing(value = "pointCut()",throwing = "ex")
+public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex){
     String methodName = joinPoint.getSignature().getName();
     System.out.println("Logger-->异常通知，方法名："+methodName+"，异常："+ex);
 }
