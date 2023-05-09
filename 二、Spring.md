@@ -2431,21 +2431,23 @@ public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex){
 ### 3.4.8、环绕通知
 
 ```java
-@Around("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
+//@Around("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
+@Around("pointCut()")
+//环绕通知的方法的返回值一定要和目标对象方法的返回值一致
 public Object aroundMethod(ProceedingJoinPoint joinPoint){
     String methodName = joinPoint.getSignature().getName();
     String args = Arrays.toString(joinPoint.getArgs());
     Object result = null;
     try {
-        System.out.println("环绕通知-->目标对象方法执行之前");
+        System.out.println("环绕通知-->前置通知：目标对象方法执行之前");
         //目标方法的执行，目标方法的返回值一定要返回给外界调用者
         result = joinPoint.proceed();
-        System.out.println("环绕通知-->目标对象方法返回值之后");
+        System.out.println("环绕通知-->返回通知：目标对象方法返回值之后");
     } catch (Throwable throwable) {
         throwable.printStackTrace();
-        System.out.println("环绕通知-->目标对象方法出现异常时");
+        System.out.println("环绕通知-->异常通知：目标对象方法出现异常时");
     } finally {
-        System.out.println("环绕通知-->目标对象方法执行完毕");
+        System.out.println("环绕通知-->后置t目标对象方法执行完毕");
     }
     return result;
 }
