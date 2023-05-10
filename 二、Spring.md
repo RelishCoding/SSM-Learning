@@ -2460,18 +2460,29 @@ public Object aroundMethod(ProceedingJoinPoint joinPoint){
 - 优先级高的切面：外面
 - 优先级低的切面：里面
 
-使用@Order注解可以控制切面的优先级：
-
-- @Order(较小的数)：优先级高
-- @Order(较大的数)：优先级低
+可以通过@Order注解的value属性设置优先级，默认值为Integer的最大值
+* @Order注解的value属性值越小，优先级越高
 
 ![27](img\27.png)
+
+```java
+@Component
+@Aspect
+@Order(1)
+public class validateAspect {
+    //@Before("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
+    @Before("com.atguigu.aop.annotation.LoggerAspect.pointCut()")
+    public void beforeMethod(){
+        System.out.println("ValidateAspect-->前置通知");
+    }
+}
+```
 
 ## 3.5，基于XML的AOP（了解）
 
 ### 3.5.1、准备工作
 
-参考基于注解的AOP环境
+参考基于注解的 AOP 环境
 
 ### 3.5.2、实现
 
