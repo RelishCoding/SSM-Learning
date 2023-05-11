@@ -41,6 +41,20 @@
             <artifactId>spring-aspects</artifactId>
             <version>5.3.24</version>
         </dependency>
+        <!-- Spring 持久化层支持jar包 -->
+        <!-- Spring 在执行持久化层操作、与持久化层技术进行整合过程中，需要使用orm、jdbc、tx三个jar包 -->
+        <!-- 导入 orm 包就可以通过 Maven 的依赖传递性把其他两个也导入 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>5.3.18</version>
+        </dependency>
+        <!-- Spring 测试相关 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.3.18</version>
+        </dependency>
     </dependencies>
 
 </project>

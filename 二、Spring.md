@@ -2523,7 +2523,7 @@ Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据�
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>5.3.1</version>
+        <version>5.3.20</version>
     </dependency>
     <!-- Spring 持久化层支持jar包 -->
     <!-- Spring 在执行持久化层操作、与持久化层技术进行整合过程中，需要使用orm、jdbc、tx三个jar包 -->
@@ -2531,13 +2531,13 @@ Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据�
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
-        <version>5.3.1</version>
+        <version>5.3.18</version>
     </dependency>
     <!-- Spring 测试相关 -->
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
-        <version>5.3.1</version>
+        <version>5.3.18</version>
     </dependency>
     <!-- junit测试 -->
     <dependency>
@@ -2550,13 +2550,13 @@ Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据�
     <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.16</version>
+        <version>8.0.31</version>
     </dependency>
     <!-- 数据源 -->
     <dependency>
         <groupId>com.alibaba</groupId>
         <artifactId>druid</artifactId>
-        <version>1.0.31</version>
+        <version>1.2.15</version>
     </dependency>
 </dependencies>
 ```
@@ -2575,13 +2575,15 @@ jdbc.driver=com.mysql.cj.jdbc.Driver
 ```xml
 <!-- 导入外部属性文件 -->
 <context:property-placeholder location="classpath:jdbc.properties" />
+
 <!-- 配置数据源 -->
 <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
-    <property name="url" value="${atguigu.url}"/>
-    <property name="driverClassName" value="${atguigu.driver}"/>
-    <property name="username" value="${atguigu.username}"/>
-    <property name="password" value="${atguigu.password}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="driverClassName" value="${jdbc.driver}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
 </bean>
+
 <!-- 配置 JdbcTemplate -->
 <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
     <!-- 装配数据源 -->
@@ -2594,7 +2596,9 @@ jdbc.driver=com.mysql.cj.jdbc.Driver
 #### ①在测试类装配 JdbcTemplate
 
 ```java
+//指定当前测试类在Spring的测试环境中执行，此时就可以通过注入的方式直接获取IOC容器中的bean
 @RunWith(SpringJUnit4ClassRunner.class)
+//设置Spring测试环境的配置文件
 @ContextConfiguration("classpath:spring-jdbc.xml")
 public class JDBCTemplateTest {
     @Autowired
@@ -2608,8 +2612,8 @@ public class JDBCTemplateTest {
 @Test
 //测试增删改功能
 public void testUpdate(){
-    String sql = "insert into t_emp values(null,?,?,?)";
-    int result = jdbcTemplate.update(sql, "张三", 23, "男");
+	String sql="insert into t_user values(null,?,?,?,?,?)";
+    int result = jdbcTemplate.update(sql,"root","123",23,"女","123@qq.com");
     System.out.println(result);
 }
 ```
