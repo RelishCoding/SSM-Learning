@@ -1811,9 +1811,9 @@ public class UserServiceImpl implements UserService {
 
 # 三、AOP
 
-## 3.1、场景模拟
+## 1、场景模拟
 
-### 3.1.1、声明接口
+### 1.1、声明接口
 
 声明计算器接口Calculator，包含加减乘除的抽象方法
 
@@ -1826,7 +1826,7 @@ public interface Calculator {
 }
 ```
 
-### 3.1.2、创建实现类
+### 1.2、创建实现类
 
 ![15](img\15.png)
 
@@ -1862,7 +1862,7 @@ public class CalculatorPureImpl implements Calculator {
 }
 ```
 
-### 3.1.3、创建带日志功能的实现类
+### 1.3、创建带日志功能的实现类
 
 ![16](img\16.png)
 
@@ -1906,7 +1906,7 @@ public class CalculatorLogImpl implements Calculator {
 }
 ```
 
-### 3.1.4、提出问题
+### 1.4、提出问题
 
 #### ①现有代码缺陷
 
@@ -1923,9 +1923,9 @@ public class CalculatorLogImpl implements Calculator {
 
 解决问题的困难：要抽取的代码在方法内部，靠以前把子类中的重复代码抽取到父类的方式没法解决。所以需要引入新的技术。
 
-## 3.2、代理模式
+## 2、代理模式
 
-### 3.2.1、概念
+### 2.1、概念
 
 #### ①介绍
 
@@ -1948,7 +1948,7 @@ public class CalculatorLogImpl implements Calculator {
 - 代理：将非核心逻辑剥离出来以后，封装这些非核心逻辑的类、对象、方法。
 - 目标：被代理“套用”了非核心逻辑代码的类、对象、方法。
 
-### 3.2.2、静态代理
+### 2.2、静态代理
 
 创建静态代理类：
 
@@ -1990,7 +1990,7 @@ public class ProxyTest {
 > 提出进一步的需求：将日志功能集中到一个代理类中，将来有任何日志需求，都通过这一个代理类来实现。这就需要使用动态代理技术了。
 >
 
-### 3.2.3、动态代理
+### 2.3、动态代理
 
 动态代理有两种：
 
@@ -2053,7 +2053,7 @@ public class ProxyFactory {
 }                                     
 ```
 
-### 3.2.4、测试
+### 2.4、测试
 
 ```java
 @Test
@@ -2065,13 +2065,13 @@ public void testDynamicProxy(){
 }
 ```
 
-## 3.3、AOP概念及相关术语
+## 3、AOP概念及相关术语
 
-### 3.3.1、概述
+### 3.1、概述
 
 AOP（Aspect Oriented Programming）是一种设计思想，是软件设计领域中的面向切面编程，它是面向对象编程的一种补充和完善，它以通过预编译方式和运行期动态代理方式实现在不修改源代码的情况下给程序动态统一添加额外功能的一种技术。
 
-### 3.3.2、相关术语
+### 3.2、相关术语
 
 #### ①横切关注点
 
@@ -2121,15 +2121,15 @@ Spring 的 AOP 技术可以通过切入点定位到特定的连接点。
 
 切点通过 org.springframework.aop.Pointcut 接口进行描述，它使用类和方法作为连接点的查询条件。
 
-### 3.3.3、作用
+### 3.3、作用
 
 - 简化代码：把方法中固定位置的重复的代码**抽取**出来，让被抽取的方法更专注于自己的核心功能，提高内聚性。
 
 - 代码增强：把特定的功能封装到切面类中，看哪里有需要，就往上套，被**套用**了切面逻辑的方法就被切面给增强了。
 
-## 3.4、基于注解的AOP
+## 4、基于注解的AOP
 
-### 3.4.1、技术说明
+### 4.1、技术说明
 
 ![24](img\24.png)
 
@@ -2139,7 +2139,7 @@ Spring 的 AOP 技术可以通过切入点定位到特定的连接点。
 
 - AspectJ：本质上是静态代理，**将代理逻辑“织入”被代理的目标类编译得到的字节码文件**，所以最终效果是动态的。weaver 就是织入器。Spring 只是借用了 AspectJ 中的注解。
 
-### 3.4.2、准备工作
+### 4.2、准备工作
 
 #### ①添加依赖
 
@@ -2202,7 +2202,7 @@ public class CalculatorPureImpl implements Calculator {
 }
 ```
 
-### 3.4.3、创建切面类并配置
+### 4.3、创建切面类并配置
 
 ```java
 // @Aspect表示这个类是一个切面类，将当前组件标识为切面
@@ -2281,7 +2281,7 @@ public class LogAspect {
 >
 > 3、在Spring配置文件中设置<aop:aspectj-autoproxy />开启基于注解的AOP
 
-### 3.4.4、各种通知
+### 4.4、各种通知
 
 - 前置通知：使用@Before注解标识，在被代理的目标方法**前**执行
 - 返回通知：使用@AfterReturning注解标识，在被代理的目标方法**成功结束**后执行（**寿终正寝**），即在返回值之后执行
@@ -2302,7 +2302,7 @@ public class LogAspect {
 >   - 返回通知或异常通知
 >   - 后置通知
 
-### 3.4.5、切入点表达式语法
+### 4.5、切入点表达式语法
 
 #### ①作用
 
@@ -2344,7 +2344,7 @@ public class LogAspect {
 >
 > 类的地方也可以使用*，表示包下所有的类
 
-### 3.4.6、重用切入点表达式
+### 4.6、重用切入点表达式
 
 #### ①声明
 
@@ -2377,7 +2377,7 @@ public void beforeMethod(JoinPoint joinPoint){
 }
 ```
 
-### 3.4.7、获取通知的相关信息
+### 4.7、获取通知的相关信息
 
 #### ①获取连接点信息
 
@@ -2428,7 +2428,7 @@ public void afterThrowingMethod(JoinPoint joinPoint, Throwable ex){
 }
 ```
 
-### 3.4.8、环绕通知
+### 4.8、环绕通知
 
 ```java
 //@Around("execution(* com.atguigu.aop.annotation.CalculatorImpl.*(..))")
@@ -2453,7 +2453,7 @@ public Object aroundMethod(ProceedingJoinPoint joinPoint){
 }
 ```
 
-### 3.4.9、切面的优先级
+### 4.9、切面的优先级
 
 相同目标方法上同时存在多个切面时，切面的优先级控制切面的**内外嵌套**顺序。
 
@@ -2478,13 +2478,13 @@ public class validateAspect {
 }
 ```
 
-## 3.5，基于XML的AOP（了解）
+## 5、基于XML的AOP（了解）
 
-### 3.5.1、准备工作
+### 5.1、准备工作
 
 参考基于注解的 AOP 环境
 
-### 3.5.2、实现
+### 5.2、实现
 
 ```xml
 <context:component-scan base-package="com.atguigu.aop.xml"></context:componentscan>
@@ -2507,13 +2507,13 @@ public class validateAspect {
 
 # 四、声明式事务
 
-## 4.1、JdbcTemplate
+## 1、JdbcTemplate
 
-### 4.1.1、简介
+### 1.1、简介
 
 Spring 框架对 JDBC 进行封装，使用 JdbcTemplate 方便实现对数据库操作
 
-### 4.1.2、准备工作
+### 1.2、准备工作
 
 #### ①加入依赖
 
@@ -2591,7 +2591,7 @@ jdbc.driver=com.mysql.cj.jdbc.Driver
 </bean>
 ```
 
-### 4.1.3、测试
+### 1.3、测试
 
 #### ①在测试类装配 JdbcTemplate
 
@@ -2654,9 +2654,9 @@ public void selectCount(){
 }
 ```
 
-## 4.2、声明式事务概念
+## 2、声明式事务概念
 
-### 4.2.1、编程式事务
+### 2.1、编程式事务
 
 事务功能的相关操作全部通过自己编写代码来实现：
 
@@ -2682,7 +2682,7 @@ try {
 - 细节没有被屏蔽：具体操作过程中，所有细节都需要程序员自己来完成，比较繁琐。
 - 代码复用性不高：如果没有有效抽取出来，每次实现功能都需要自己编写代码，代码就没有得到复用。
 
-### 4.2.2、声明式事务
+### 2.2、声明式事务
 
 既然事务控制的代码有规律可循，代码的结构基本是确定的，所以框架就可以将固定模式的代码抽取出来，进行相关的封装。
 
@@ -2697,9 +2697,9 @@ try {
 - **编程式**：**自己写代码**实现功能
 - **声明式**：通过**配置**让**框架**实现功能
 
-## 4.3、基于注解的声明式事务
+## 3、基于注解的声明式事务
 
-### 4.3.1、准备工作
+### 3.1、准备工作
 
 #### ①加入依赖
 
@@ -2887,7 +2887,7 @@ public class BookDaoImpl implements BookDao {
 }
 ```
 
-### 4.3.2、测试无事务情况
+### 3.2、测试无事务情况
 
 #### ①创建测试类
 
@@ -2923,11 +2923,11 @@ public class TxByAnnotationTest {
 
 显然这样的结果是错误的，购买图书是一个完整的功能，更新库存和更新余额要么都成功要么都失败
 
-### 4.3.3、加入事务
+### 3.3、加入事务
 
 #### ①添加事务配置
 
-在Spring的配置文件中添加配置：
+在 Spring 的配置文件中添加配置：
 
 ```xml
 <!-- 配置事务管理器 -->
@@ -2966,13 +2966,13 @@ public class TxByAnnotationTest {
 >
 > 在需要被事务管理的方法上，添加@Transactional注解，该方法就会被事务管理
 
-### 4.3.4、@Transactional注解标识的位置
+### 3.4、@Transactional注解标识的位置
 
 @Transactional 标识在方法上，只会影响该方法
 
 @Transactional 标识的类上，会影响类中所有的方法
 
-### 4.3.5、事务属性：只读
+### 3.5、事务属性：只读
 
 #### ①介绍
 
@@ -3001,7 +3001,7 @@ Caused by: java.sql.SQLException: Connection is read-only. Queries leading to da
 
 are not allowed
 
-### 4.3.6、事务属性：超时
+### 3.6、事务属性：超时
 
 #### ①介绍
 
@@ -3039,7 +3039,7 @@ org.springframework.transaction.**TransactionTimedOutException**: Transaction ti
 
 deadline was Fri Jun 04 16:25:39 CST 2022
 
-### 4.3.7、事务属性：回滚策略
+### 3.7、事务属性：回滚策略
 
 #### ①介绍
 
@@ -3072,7 +3072,7 @@ public void buyBook(Integer bookId, Integer userId) {
 
 虽然购买图书功能中出现了数学运算异常（ArithmeticException），但是我们设置的回滚策略是，当出现ArithmeticException不发生回滚，因此购买图书的操作正常执行
 
-### 4.3.8、事务属性：事务隔离级别
+### 3.8、事务属性：事务隔离级别
 
 #### ①介绍
 
@@ -3126,7 +3126,7 @@ MySQL虽然默认事务隔离级别是REPEATABLE READ，但不会出现幻读问
 @Transactional(isolation = Isolation.SERIALIZABLE)//串行化
 ```
 
-### 4.3.9、事务属性：事务传播行为
+### 3.9、事务属性：事务传播行为
 
 #### ①介绍
 
@@ -3184,13 +3184,13 @@ public void checkout(Integer[] bookIds, Integer userId){
 
 * @Transactional(propagation = Propagation.REQUIRES_NEW)，表示不管当前线程上是否有已经开启的事务，都要开启新事务。同样的场景，每次购买图书都是在 buyBook() 的事务中执行，因此第一本图书购买成功，事务结束，第二本图书购买失败，只在第二次的 buyBook() 中回滚，购买第一本图书不受影响，能买几本就买几本
 
-## 4.4、基于XML的声明式事务
+## 4、基于XML的声明式事务
 
-### 4.3.1、场景模拟
+### 4.1、场景模拟
 
 参考基于注解的声明式事务
 
-### 4.3.2、修改Spring配置文件
+### 4.2、修改Spring配置文件
 
 将 Spring 配置文件中去掉 tx:annotation-driven 标签，并添加配置：
 
@@ -3232,4 +3232,3 @@ public void checkout(Integer[] bookIds, Integer userId){
 >     <version>5.3.24</version>
 > </dependency>
 > ```
->
