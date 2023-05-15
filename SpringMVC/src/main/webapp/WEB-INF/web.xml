@@ -4,4 +4,19 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+  
+  <!--
+    配置SpringMVC的前端控制器DispatcherServlet
+    url-pattern中/和/*的区别
+    /：匹配浏览器向服务器发送的所有请求（不包括.jsp）
+    /*：匹配浏览器向服务器发送的所有请求（包括.jsp）
+  -->
+  <servlet>
+    <servlet-name>SpringMVC</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SpringMVC</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
 </web-app>

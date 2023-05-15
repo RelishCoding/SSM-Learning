@@ -44,7 +44,7 @@ SpringMVC 是 Spring 为表述层开发提供的一整套完备的解决方案�
 
 ## 2.1、开发环境
 
-IDE：idea 2019.2
+IDE：idea 2021.3
 
 构建工具：maven3.5.4
 
