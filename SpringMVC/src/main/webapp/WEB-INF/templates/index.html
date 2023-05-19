@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+<h1>index.html</h1>
+<a th:href="@{/hello}">测试SpringMVC</a><br/>
+<a href="/hello">测试绝对路径</a><br/>
+<a th:href="@{/hello}">测试@RequestMapping注解所标识的位置</a><br/>
+<a th:href="@{/abc}">测试@RequestMapping注解的value属性</a>
+</body>
+</html>
