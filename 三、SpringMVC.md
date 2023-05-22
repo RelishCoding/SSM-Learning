@@ -338,7 +338,7 @@ public class RequestMappingController {
 }
 ```
 
-3.3、@RequestMapping注解的value属性
+## 3.3、@RequestMapping注解的value属性
 
 @RequestMapping 注解的 value 属性通过请求的请求地址匹配请求映射
 
@@ -362,24 +362,24 @@ public String testRequestMapping(){
 
 ## 3.4、@RequestMapping注解的method属性
 
-@RequestMapping注解的method属性通过请求的请求方式（get或post）匹配请求映射
+@RequestMapping 注解的 method 属性通过请求的请求方式（get或post）匹配请求映射
 
-@RequestMapping注解的method属性是一个RequestMethod类型的数组，表示该请求映射能够匹配多种请求方式的请求
+@RequestMapping 注解的 method 属性是一个 RequestMethod 类型的数组，表示该请求映射能够匹配多种请求方式的请求。即当前浏览器所发送请求的请求方式匹配 method 属性中的任何一种请求方式，则当前请求就会被注解所标识的方法进行处理
 
-若当前请求的请求地址满足请求映射的value属性，但是请求方式不满足method属性，则浏览器报错
-
-405：Request method 'POST' not supported
+若浏览器所发送的请求的请求路径和 @RequestMapping 注解的 value 属性匹配，但是请求方式不匹配 method 属性，此时页面报错：405 - Request method 'GET' not supported
 
 ```xml
-<a th:href="@{/test}">测试@RequestMapping的value属性-->/test</a><br>
-<form th:action="@{/test}" method="post">
-	<input type="submit">
+<a th:href="@{/hello}">测试@RequestMapping的value属性-->/hello</a><br>
+<a th:href="@{/abc}">测试@RequestMapping的value属性-->/abc</a><br>
+    
+<form th:action="@{/hello}" method="post">
+	<input type="submit" value="测试@RequestMapping注解的method属性">
 </form>
 ```
 
 ```java
 @RequestMapping(
-    value = {"/testRequestMapping", "/test"},
+    value = {"/hello", "/abc"},
     method = {RequestMethod.GET, RequestMethod.POST}
 )
 public String testRequestMapping(){
@@ -389,52 +389,48 @@ public String testRequestMapping(){
 
 > 注：
 >
-> 1、对于处理指定请求方式的控制器方法，SpringMVC中提供了@RequestMapping的派生注解
+> 1、对于处理指定请求方式的控制器方法，SpringMVC 中提供了 @RequestMapping 的派生注解
 >
-> 处理get请求的映射-->@GetMapping
+> 处理 get 请求的映射-->@GetMapping
 >
-> 处理post请求的映射-->@PostMapping
+> 处理 post 请求的映射-->@PostMapping
 >
-> 处理put请求的映射-->@PutMapping
+> 处理 put 请求的映射-->@PutMapping
 >
-> 处理delete请求的映射-->@DeleteMapping
+> 处理 delete 请求的映射-->@DeleteMapping
 >
 > 2、常用的请求方式有get，post，put，delete
 >
-> 但是目前浏览器只支持get和post，若在form表单提交时，为method设置了其他请求方式的字符
+> 但是目前浏览器只支持 get 和 post，若在 form 表单提交时，为 method 设置了其他请求方式的字符串（put或delete），则按照默认的请求方式 get 处理
 >
-> 串（put或delete），则按照默认的请求方式get处理
+> 若要发送 put 和delete请求，则需要通过 spring 提供的过滤器 HiddenHttpMethodFilter，在 RESTful部分会讲到
 >
-> 若要发送put和delete请求，则需要通过spring提供的过滤器HiddenHttpMethodFilter，在
->
-> RESTful部分会讲到
 
 ## 3.5、@RequestMapping注解的params属性（了解）
 
-@RequestMapping注解的params属性通过请求的请求参数匹配请求映射
+@RequestMapping  注解的 params 属性通过请求的请求参数匹配请求映射，即浏览器发送的请求的请求参数必须满足params属性的设置
 
-@RequestMapping注解的params属性是一个字符串类型的数组，可以通过四种表达式设置请求参数
+@RequestMapping 注解的 params  属性是一个字符串类型的数组，可以通过四种表达式设置请求参数和请求映射的匹配关系
 
-和请求映射的匹配关系
+"param"：要求当前请求的请求参数中必须携带param参数
 
-"param"：要求请求映射所匹配的请求必须携带param请求参数
+"!param"：要求当前请求的请求参数中一定不能携带param参数
 
-"!param"：要求请求映射所匹配的请求必须不能携带param请求参数
+"param=value"：要求当前请求的请求参数中必须携带param参数且值必须为value
 
-"param=value"：要求请求映射所匹配的请求必须携带param请求参数且param=value
-
-"param!=value"：要求请求映射所匹配的请求必须携带param请求参数但是param!=value
+"param!=value"：要求当前请求的请求参数中可以不携带param参数，若携带值一定不能是value
 
 ```html
-<a th:href="@{/test(username='admin',password=123456)">测试@RequestMapping的
-params属性-->/test</a><br>
+<a th:href="@{/hello?username=admin}">测试@RequestMapping注解的params属性</a><br/>
+<a th:href="@{/hello(username='admin',password=123456)">测试@RequestMapping的
+params属性-->/hello</a><br>
 ```
 
 ```java
 @RequestMapping(
-    value = {"/testRequestMapping", "/test"}
-    ,method = {RequestMethod.GET, RequestMethod.POST}
-    ,params = {"username","password!=123456"}
+    value = {"/hello", "/abc"},
+    method = {RequestMethod.GET, RequestMethod.POST}.
+    params = {"username","password!=123456"}
 )
 public String testRequestMapping(){
     return "success";
@@ -443,11 +439,9 @@ public String testRequestMapping(){
 
 > 注：
 >
-> 若当前请求满足@RequestMapping注解的value和method属性，但是不满足params属性，此时
+> 若当前请求满足@RequestMapping注解的value 和 method 属性，但是不满足 params 属性，此时页面会报错：
 >
-> 页面回报错400：Parameter conditions "username, password!=123456" not met for actual
->
-> request parameters: username={admin}, password={123456}
+> 400：Parameter conditions "username, password!=123456" not met for actual request parameters: username={admin}, password={123456}
 
 ## 3.6、@RequestMapping注解的headers属性（了解）
 
