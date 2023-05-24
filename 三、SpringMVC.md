@@ -628,10 +628,10 @@ public String getParam(
 
 ## 4.6、通过POJO获取请求参数
 
-可以在控制器方法的形参位置设置一个实体类类型的形参，此时若浏览器传输的请求参数的参数名和实体类中的属性名一致，那么请求参数就会为此属性赋值
+可以在控制器方法的形参位置设置一个实体类类型的形参，此时若浏览器传输的请求参数的参数名和实体类中的属性的属性名一致，那么请求参数就会为此属性赋值
 
 ```html
-<form th:action="@{/testpojo}" method="post">
+<form th:action="@{/pojo}" method="post">
     用户名：<input type="text" name="username"><br>
     密码：<input type="password" name="password"><br>
     性别：<input type="radio" name="sex" value="男">男<input type="radio"name="sex" value="女">女<br>
@@ -642,18 +642,17 @@ public String getParam(
 ```
 
 ```java
-@RequestMapping("/testpojo")
-public String testPOJO(User user){
+@RequestMapping("/pojo")
+public String getParamByPojo(User user){
     System.out.println(user);
     return "success";
 }
-//最终结果-->User{id=null, username='张三', password='123', age=23, sex='男',
-email='123@qq.com'}
+//输出：User{id=null, username='张三', password='123', age=23, sex='男',email='123@qq.com'}
 ```
 
 ## 4.7、解决获取请求参数的乱码问题
 
-解决获取请求参数的乱码问题，可以使用SpringMVC提供的编码过滤器CharacterEncodingFilter，但是必须在web.xml中进行注册
+解决获取请求参数的乱码问题，可以使用 SpringMVC 提供的编码过滤器 CharacterEncodingFilter，但是必须在web.xml 中进行注册
 
 ```xml
 <!--配置springMVC的编码过滤器-->
@@ -677,7 +676,7 @@ email='123@qq.com'}
 
 > 注：
 >
-> SpringMVC中处理编码的过滤器一定要配置到其他过滤器之前，否则无效
+> SpringMVC 中处理编码的过滤器一定要配置到其他过滤器之前，否则无效
 
 # 5、域对象共享数据
 
