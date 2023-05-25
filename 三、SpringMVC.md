@@ -686,84 +686,129 @@ public String getParamByPojo(User user){
 @RequestMapping("/testServletAPI")
 public String testServletAPI(HttpServletRequest request){
     request.setAttribute("testScope", "hello,servletAPI");
-    return "success";
+    ret urn "success";
 }
 ```
 
 ## 5.2、使用ModelAndView向request域对象共享数据
 
+通过 ModelAndView 向请求域中共享数据时，可以使用其 Model 功能向请求域共享数据，使用 View 功能设置逻辑视图，但是控制器方法一定要将 ModelAndView 作为方法的返回值
+
+```html
+<!-- index.html中添加内容：-->
+<a th:href="@{/test/mav}">测试通过ModelAndView向请求域共享数据</a>
+```
+
 ```java
-@RequestMapping("/testModelAndView")
+@RequestMapping("/test/mav")
 public ModelAndView testModelAndView(){
     /**
      * ModelAndView有Model和View的功能
      * Model主要用于向请求域共享数据
-     * View主要用于设置视图，实现页面跳转
+     * View主要用于设置逻辑视图，实现页面跳转
      */
     ModelAndView mav = new ModelAndView();
     //向请求域共享数据
-    mav.addObject("testScope", "hello,ModelAndView");
+    mav.addObject("testRequestScope", "hello,ModelAndView");
     //设置视图，实现页面跳转
     mav.setViewName("success");
     return mav;
 }
 ```
 
+```html
+<!--success.html中添加内容：-->
+<p th:text="${testRequestScope}"></p>
+```
+
 ## 5.3、使用Model向request域对象共享数据
 
+```html
+<!-- index.html中添加内容：-->
+<a th:href="@{/test/model}">测试通过Model向请求域共享数据</a><br/>
+```
+
 ```java
-@RequestMapping("/testModel")
+@RequestMapping("/test/model")
 public String testModel(Model model){
-    model.addAttribute("testScope", "hello,Model");
+	System.out.println(model.getClass().getName());
+    //org.springframework.validation.support.BindingAwareModelMap
+    model.addAttribute("testRequestScope","hello,Model");
     return "success";
 }
 ```
 
 ## 5.4、使用map向request域对象共享数据
 
+```html
+<!-- index.html中添加内容：-->
+<a th:href="@{/test/map}">测试通过map向请求域共享数据</a><br/>
+```
+
 ```java
-@RequestMapping("/testMap")
+@RequestMapping("/test/map")
 public String testMap(Map<String, Object> map){
-    map.put("testScope", "hello,Map");
+	System.out.println(map.getClass().getName());
+    //org.springframework.validation.support.BindingAwareModelMap
+    map.put("testRequestScope","hello,Map");
     return "success";
 }
 ```
 
-5.5、使用ModelMap向request域对象共享数据
+## 5.5、使用ModelMap向request域对象共享数据
+
+```html
+<!-- index.html中添加内容：-->
+<a th:href="@{/test/modelMap}">测试通过ModelMap向请求域共享数据</a><br/>
+```
 
 ```java
 @RequestMapping("/testModelMap")
 public String testModelMap(ModelMap modelMap){
-    modelMap.addAttribute("testScope", "hello,ModelMap");
+	System.out.println(modelMap.getClass().getName());
+    //org.springframework.validation.support.BindingAwareModelMap
+    modelMap.addAttribute("testRequestScope","hello,ModelMap");
     return "success";
 }
 ```
 
 ## 5.6、Model、ModelMap、Map的关系
 
-Model、ModelMap、Map类型的参数其实本质上都是 BindingAwareModelMap 类型的
+观察上面代码的打印输出可以发现，Model、ModelMap、Map 类型的参数其实本质上都是 BindingAwareModelMap 类型的
+
+在底层中，这些类型的形参最终都是通过 BindingAwareModelMap 创建
 
 ```java
-public interface Model{}
-public class ModelMap extends LinkedHashMap<String, Object> {}
-public class ExtendedModelMap extends ModelMap implements Model {}
 public class BindingAwareModelMap extends ExtendedModelMap {}
+public class ExtendedModelMap extends ModelMap implements Model {}
+public class ModelMap extends LinkedHashMap<String, Object> {}
+public interface Model{}
+public class LinkedHashMap<K,V> extends HashMap<K,V> implements Map<K,V> {}
 ```
 
 ## 5.7、向session域共享数据
 
+会话域中的数据只跟当前浏览器是否关闭有关系，跟服务器是否关闭无关
+
 ```java
-@RequestMapping("/testSession")
+@RequestMapping("/test/session")
 public String testSession(HttpSession session){
     session.setAttribute("testSessionScope", "hello,session");
     return "success";
 }
 ```
 
+```html
+<!--success.html中添加内容：-->
+<p th:text="${session.testSessionScope}"></p>
+```
+
 ## 5.8、向application域共享数据
 
+应用域中的数据只跟当前服务器是否关闭有关系，跟浏览器是否关闭无关
+
 ```java
-@RequestMapping("/testApplication")
+@RequestMapping("/test/application")
 public String testApplication(HttpSession session){
     ServletContext application = session.getServletContext();
     application.setAttribute("testApplicationScope", "hello,application");
@@ -771,26 +816,36 @@ public String testApplication(HttpSession session){
 }
 ```
 
+```html
+<!--success.html中添加内容：-->
+<p th:text="${application.testApplication}"></p>
+```
+
 # 6、SpringMVC的视图
 
-SpringMVC中的视图是View接口，视图的作用渲染数据，将模型Model中的数据展示给用户
+SpringMVC 中的视图是 View 接口，视图的作用是渲染数据，将模型 Model 中的数据展示给用户
 
-SpringMVC视图的种类很多，默认有转发视图和重定向视图
+SpringMVC 视图的种类很多，默认有转发视图和重定向视图
 
-当工程引入jstl的依赖，转发视图会自动转换为JstlView
+当工程引入 jstl 的依赖，转发视图会自动转换为 JstlView
 
-若使用的视图技术为Thymeleaf，在SpringMVC的配置文件中配置了Thymeleaf的视图解析器，由此视图解析器解析之后所得到的是ThymeleafView
+若使用的视图技术为 Thymeleaf，在 SpringMVC 的配置文件中配置了 Thymeleaf 的视图解析器，由此视图解析器解析之后所得到的是 Thymel eafView
 
 ## 6.1、ThymeleafView
 
-当控制器方法中所设置的视图名称没有任何前缀时，此时的视图名称会被SpringMVC配置文件中所配置的视图解析器解析，视图名称拼接视图前缀和视图
+当控制器方法中所设置的视图名称没有任何前缀时，此时的视图名称会被 SpringMVC 配置文件中所配置的视图解析器解析，视图名称拼接视图前缀和视图后缀所得到的最终路径，会通过转发的方式实现跳转
 
-后缀所得到的最终路径，会通过转发的方式实现跳转
+```html
+<a th:href="@{/test/view/thymeleaf}">测试SpringMVC的视图ThymeleafView</a>
+```
 
 ```java
-@RequestMapping("/testHello")
-public String testHello(){
-	return "hello";
+@Controller
+public class TestViewController {
+    @RequestMapping("/test/view/thymeleaf")
+    public String testThymeleafView(){
+        return "success";
+    }
 }
 ```
 
@@ -798,18 +853,22 @@ public String testHello(){
 
 ## 6.2、转发视图
 
-SpringMVC中默认的转发视图是InternalResourceView
+SpringMVC 中默认的转发视图是 InternalResourceView
 
-SpringMVC中创建转发视图的情况：
+SpringMVC 中创建转发视图的情况：
 
-当控制器方法中所设置的视图名称以"forward:"为前缀时，创建InternalResourceView视图，此时的视图名称不会被SpringMVC配置文件中所配置的视图解析器解析，而是会将前缀"forward:"去掉，剩余部分作为最终路径通过转发的方式实现跳转
+当控制器方法中所设置的视图名称以 "forward:" 为前缀时，创建 InternalResourceView 视图，此时的视图名称不会被 SpringMVC 配置文件中所配置的视图解析器解析，而是会将前缀 "forward:" 去掉，剩余部分作为最终路径通过转发的方式实现跳转
 
-例如"forward:/"，"forward:/employee"
+例如 "forward:/"，"forward:/employee"
+
+```html
+<a th:href="@{/test/view/forward}">测试SpringMVC的视图InternalResourceView</a><br/>
+```
 
 ```java
-@RequestMapping("/testForward")
-public String testForward(){
-	return "forward:/testHello";
+@RequestMapping("/test/view/forward")
+public String testInternalResourceView(){
+    return "forward:/test/model";
 }
 ```
 
@@ -817,18 +876,20 @@ public String testForward(){
 
 ## 6.3、重定向视图
 
-SpringMVC中默认的重定向视图是RedirectView
+SpringMVC 中默认的重定向视图是 RedirectView
 
-当控制器方法中所设置的视图名称以"redirect:"为前缀时，创建RedirectView视图，此时的视图名称不
+当控制器方法中所设置的视图名称以 "redirect:" 为前缀时，创建 RedirectView 视图，此时的视图名称不会被SpringMVC 配置文件中所配置的视图解析器解析，而是会将前缀 "redirect:" 去掉，剩余部分作为最终路径通过重定向的方式实现跳转
 
-会被SpringMVC配置文件中所配置的视图解析器解析，而是会将前缀"redirect:"去掉，剩余部分作为最终路径通过重定向的方式实现跳转
+例如 "redirect:/"，"redirect:/employee"
 
-例如"redirect:/"，"redirect:/employee"
+```html
+<a th:href="@{/test/view/redirect}">测试SpringMVC的视图RedirectView</a><br/>
+```
 
 ```java
-@RequestMapping("/testRedirect")
+@RequestMapping("/test/view/redirect")
 public String testRedirect(){
-	return "redirect:/testHello";
+    return "redirect:/test/model";
 }
 ```
 
@@ -836,31 +897,31 @@ public String testRedirect(){
 
 > 注：
 >
-> 重定向视图在解析时，会先将redirect:前缀去掉，然后会判断剩余部分是否以/开头，若是则会自
+> 重定向视图在解析时，会先将 redirect: 前缀去掉，然后会判断剩余部分是否以 / 开头，若是则会自动拼接上下文路径
 >
-> 动拼接上下文路径
 
 ## 6.4、视图控制器view-controller
 
-当控制器方法中，仅仅用来实现页面跳转，即只需要设置视图名称时，可以将处理器方法使用view
-
-controller标签进行表示
+当控制器方法中，仅仅用来实现页面跳转，即只需要设置视图名称时，可以将处理器方法使用 view-controller 标签进行表示
 
 ```xml
+<!--开启 mvc的注解驱动-->
+<mvc:annotation-driven/>
+
 <!--
-    path：设置处理的请求地址
+	视图控制器：为当前的请求设置视图名称实现页面跳转
+  	path：设置处理的请求地址
     view-name：设置请求地址所对应的视图名称
+    若设置视图控制器，则只有视图控制器所设置的请求会被处理，其他的请求将全部404
+    此时必须再配置一个标签：<mvc:annotation-driven/>
 -->
-<mvc:view-controller path="/testView" view-name="success"></mvc:view-controller>
+<mvc:view-controller path="/" view-name="index"></mvc:view-controller>
 ```
 
 > 注：
 >
-> 当SpringMVC中设置任何一个view-controller时，其他控制器中的请求映射将全部失效，此时需
+> 当 SpringMVC 中设置任何一个 view-controller 时，其他控制器中的请求映射将全部失效，此时需要在SpringMVC  的核心配置文件中设置开启 mvc 注解驱动的标签：<mvc:annotation-driven />
 >
-> 要在SpringMVC的核心配置文件中设置开启mvc注解驱动的标签：
->
-> <mvc:annotation-driven />
 
 # 7、RESTful
 
