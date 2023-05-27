@@ -23,6 +23,16 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <!-- 设置处理请求方式的过滤器 -->
+  <filter>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>HiddenHttpMethodFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!--
     配置SpringMVC的前端控制器DispatcherServlet
     SpringMVC的配置文件默认的位置和名称：
