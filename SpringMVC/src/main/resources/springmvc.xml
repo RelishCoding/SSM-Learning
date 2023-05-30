@@ -8,7 +8,7 @@
     <!-- 扫描控制层组件 -->
     <!--<context:component-scan base-package="com.atguigu.helloworld.controller"></context:component-scan>-->
     <!--<context:component-scan base-package="com.atguigu.demo.controller"></context:component-scan>-->
-    <context:component-scan base-package="com.atguigu.rest.controller"></context:component-scan>
+    <context:component-scan base-package="com.atguigu.rest"></context:component-scan>
 
     <!-- 配置Thymeleaf视图解析器 -->
     <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
@@ -30,6 +30,18 @@
         </property>
     </bean>
 
+    <!--
+        配置默认的servlet处理静态资源
+        当前工程的web.xml配置的前端控制器DispatcherServlet的url-pattern是/
+        tomcat的web.xml配置的DefaultServlet的url-pattern也是/，两者发生冲突
+        此时，浏览器发送的请求会优先被DispatcherServlet进行处理，但是DispatcherServlet无法处理静态资源
+        因此报错404
+        若只配置了<mvc:default-servlet-handler />，此时浏览器发送的所有请求都会被DefaultServlet处理
+        若配置了<mvc:default-servlet-handler />和<mvc:annotation-driven/>，
+        浏览器发送的请求会先被DispatcherServlet处理，无法处理再交给DefaultServlet处理
+    -->
+    <mvc:default-servlet-handler />
+
     <!--开启 mvc的注解驱动-->
     <mvc:annotation-driven/>
 
@@ -39,4 +51,5 @@
         此时必须再配置一个标签：<mvc:annotation-driven/>
     -->
     <mvc:view-controller path="/" view-name="index"></mvc:view-controller>
+    <mvc:view-controller path="/to/add" view-name="employee_add"></mvc:view-controller>
 </beans>

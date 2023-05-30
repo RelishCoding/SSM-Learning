@@ -1258,9 +1258,12 @@ public class EmployeeDao {
 
 ```java
 @RequestMapping(value = "/employee", method = RequestMethod.GET)
-public String getEmployeeList(Model model){
+public String getAllEmployee(Model model){
+    //获取所有的员工信息
     Collection<Employee> employeeList = employeeDao.getAll();
+    //将所有的员工信息在请求域中共享
     model.addAttribute("employeeList", employeeList);
+    //跳转到列表页面
     return "employee_list";
 }
 ```
@@ -1301,6 +1304,24 @@ public String getEmployeeList(Model model){
         </table>
     </body>
 </html>
+```
+
+要访问到静态资源，还需在 springmvc.xml 中配置默认的 servlet 处理静态资源
+
+```xml
+<!--
+	当前工程的web.xml配置的前端控制器DispatcherServlet的url-pattern是/
+    tomcat的web.xml配置的DefaultServlet的url-pattern也是/，两者发生冲突
+    此时，浏览器发送的请求会优先被DispatcherServlet进行处理，但是DispatcherServlet无法处理静态资源
+    因此报错404
+    若只配置了<mvc:default-servlet-handler />，此时浏览器发送的所有请求都会被DefaultServlet处理
+    若配置了<mvc:default-servlet-handler />和<mvc:annotation-driven/>，
+    浏览器发送的请求会先被DispatcherServlet处理，无法处理再交给DefaultServlet处理
+-->
+<mvc:default-servlet-handler />
+
+<!--开启 mvc的注解驱动-->
+<mvc:annotation-driven/>
 ```
 
 ## 8.5、具体功能：删除
@@ -1364,6 +1385,8 @@ public String deleteEmployee(@PathVariable("id") Integer id){
 
 ### ①配置view-controller
 
+由于只是跳转到添加页面，不涉及其他操作，所以直接在视图控制器中配置
+
 ```xml
 <mvc:view-controller path="/toAdd" view-name="employee_add"></mvc:view-controller>
 ```
@@ -1379,11 +1402,35 @@ public String deleteEmployee(@PathVariable("id") Integer id){
     </head>
     <body>
         <form th:action="@{/employee}" method="post">
-            lastName:<input type="text" name="lastName"><br>
-            email:<input type="text" name="email"><br>
-            gender:<input type="radio" name="gender" value="1">male
-            <input type="radio" name="gender" value="0">female<br>
-            <input type="submit" value="add"><br>
+            <table>
+                <tr>
+                    <th colspan="2">add employee</th>
+                </tr>
+                <tr>
+                    <td>lastName</td>
+                    <td>
+                        <input type="text" name="lastName">
+                    </td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>
+                        <input type="text" name="email">
+                    </td>
+                </tr>
+                <tr>
+                    <td>gender</td>
+                    <td>
+                        <input type="radio" name="gender" value="1">male
+                        <input type="radio" name="gender" value="0">female
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="add">
+                    </td>
+                </tr>
+            </table>
         </form>
     </body>
 </html>
@@ -1396,7 +1443,9 @@ public String deleteEmployee(@PathVariable("id") Integer id){
 ```java
 @RequestMapping(value = "/employee", method = RequestMethod.POST)
 public String addEmployee(Employee employee){
+    //保存员工信息
     employeeDao.save(employee);
+    //重定向到列表功能：/employee
     return "redirect:/employee";
 }
 ```
