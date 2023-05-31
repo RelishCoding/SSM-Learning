@@ -1345,7 +1345,7 @@ public String getAllEmployee(Model model){
 删除超链接
 
 ```html
-<a class="deleteA" @click="deleteEmployee"th:href="@{'/employee/'+${employee.id}}">delete</a>
+<a class="deleteA" @click="deleteEmployee" th:href="@{'/employee/'+${employee.id}}">delete</a>
 ```
 
 通过 vue 处理点击事件
@@ -1463,8 +1463,11 @@ public String addEmployee(Employee employee){
 ```java
 @RequestMapping(value = "/employee/{id}", method = RequestMethod.GET)
 public String getEmployeeById(@PathVariable("id") Integer id, Model model){
+    //根据id查询员工信息
     Employee employee = employeeDao.get(id);
+    //将员工信息共享到请求域中
     model.addAttribute("employee", employee);
+    //跳转到employee_update.html
     return "employee_update";
 }
 ```
@@ -1482,16 +1485,39 @@ public String getEmployeeById(@PathVariable("id") Integer id, Model model){
         <form th:action="@{/employee}" method="post">
             <input type="hidden" name="_method" value="put">
             <input type="hidden" name="id" th:value="${employee.id}">
-            lastName:<input type="text" name="lastName" th:value="${employee.lastName}">
-            <br>
-            email:<input type="text" name="email" th:value="${employee.email}"><br>
-            <!--
-                th:field="${employee.gender}"可用于单选框或复选框的回显
-                若单选框的value和employee.gender的值一致，则添加checked="checked"属性
-			-->
-            gender:<input type="radio" name="gender" value="1"th:field="${employee.gender}">male
-            <input type="radio" name="gender" value="0"th:field="${employee.gender}">female<br>
-            <input type="submit" value="update"><br>
+            <table>
+                <tr>
+                    <th colspan="2">update employee</th>
+                </tr>
+                <tr>
+                    <td>lastName</td>
+                    <td>
+                        <input type="text" name="lastName" th:value="${employee.lastName}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>
+                        <input type="text" name="email" th:value="${employee.email}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>gender</td>
+                    <td>
+                        <!--
+                            th:field="${employee.gender}"可用于单选框或复选框的回显
+                            若单选框的value和employee.gender的值一致，则添加checked="checked"属性
+                        -->
+                        <input type="radio" name="gender" value="1" th:field="${employee.gender}">male
+                        <input type="radio" name="gender" value="0" th:field="${employee.gender}">female
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="update">
+                    </td>
+                </tr>
+            </table>
         </form>
     </body>
 </html>
@@ -1504,7 +1530,9 @@ public String getEmployeeById(@PathVariable("id") Integer id, Model model){
 ```java
 @RequestMapping(value = "/employee", method = RequestMethod.PUT)
 public String updateEmployee(Employee employee){
+    //修改员工信息
     employeeDao.save(employee);
+    //重定向到列表功能：/employee
     return "redirect:/employee";
 }
 ```
