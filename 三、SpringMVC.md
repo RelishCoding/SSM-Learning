@@ -1336,6 +1336,8 @@ public String getAllEmployee(Model model){
 </form>
 ```
 
+### ②删除超链接绑定点击事件
+
 引入 vue.js
 
 ```html
@@ -1345,7 +1347,39 @@ public String getAllEmployee(Model model){
 删除超链接
 
 ```html
-<a class="deleteA" @click="deleteEmployee" th:href="@{'/employee/'+${employee.id}}">delete</a>
+<a class="deleteA" @click="deleteEmployee()" th:href="@{'/employee/'+${employee.id}}">delete</a>
+```
+
+将 table 和 form 用 div 包裹起来
+
+```html
+<div id="app">
+    <table>
+        <tr>
+            <th colspan="5">employee list</th>
+        </tr>
+        <tr>
+            <th>id</th>
+            <th>lastName</th>
+            <th>email</th>
+            <th>gender</th>
+            <th>options(<a th:href="@{/to/add}">add</a>)</th>
+        </tr>
+        <tr th:each="employee : ${allEmployee}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.lastName}"></td>
+            <td th:text="${employee.email}"></td>
+            <td th:text="${employee.gender}"></td>
+            <td>
+                <a @click="deleteEmployee()" th:href="@{'/employee/'+${employee.id}}">delete</a>
+                <a th:href="@{'/employee/'+${employee.id}}">update</a>
+            </td>
+        </tr>
+    </table>
+    <form method="post">
+        <input type="hidden" name="_method" value="delete">
+    </form>
+</div>
 ```
 
 通过 vue 处理点击事件
@@ -1353,13 +1387,13 @@ public String getAllEmployee(Model model){
 ```html
 <script type="text/javascript">
     var vue = new Vue({
-        el:"#dataTable",
+        el:"#app",
         methods:{
-            //event表示当前事件
-            deleteEmployee:function (event) {
+            deleteEmployee(){
                 //通过id获取表单标签
-                var delete_form = document.getElementById("delete_form");
+                var delete_form = document.getElementsByTagName("form")[0];
                 //将触发事件的超链接的href属性为表单的action属性赋值
+                //event表示当前事件,event.target表示当前触发事件的标签
                 delete_form.action = event.target.href;
                 //提交表单
                 delete_form.submit();
@@ -1376,7 +1410,9 @@ public String getAllEmployee(Model model){
 ```java
 @RequestMapping(value = "/employee/{id}", method = RequestMethod.DELETE)
 public String deleteEmployee(@PathVariable("id") Integer id){
+    //删除员工信息
     employeeDao.delete(id);
+    //重定向到列表功能
     return "redirect:/employee";
 }
 ```
@@ -1539,9 +1575,106 @@ public String updateEmployee(Employee employee){
 
 # 9、SpringMVC处理ajax请求
 
+axios 回顾：
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+<div id="app">
+    <h1>index.html</h1>
+    <input type="button" value="测试SpringMVC处理ajax" @click="testAjax()">
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/axios.min.js}"></script>
+<script type="text/javascript">
+    /**
+     * axios({
+     *     url:"",//请求路径
+     *     method:"",//请求方式
+     *     //以name=value&&name=value的方式发送的请求参数
+     *     //不管使用的请求方式是get还是post，请求参数都会被拼接到请求地址后
+     *     //此种方式的请求参数可以通过request.getParameter()获取
+     *     params:{},
+     *     //以json格式发送的请求参数
+     *     //请求参数都会被保存到请求报文的请求体传输到服务器
+     *     //此种方式的请求参数不可以通过request.getParameter()获取,需要处理json的jar包
+     *     data:{}
+     * }).then(response=>{
+     *     console.log(response.data);
+     * });
+     */
+
+    var vue=new Vue({
+       el:"#app",
+       methods:{
+           testAjax(){
+               axios.post();
+           }
+       }
+    });
+</script>
+
+</body>
+</html>
+```
+
+测试 SpringMVC 处理 ajax 请求：
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+<div id="app">
+    <h1>index.html</h1>
+    <input type="button" value="测试SpringMVC处理ajax" @click="testAjax()">
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/axios.min.js}"></script>
+<script type="text/javascript">
+    var vue=new Vue({
+       el:"#app",
+       methods:{
+           testAjax(){
+               axios.post(
+                   "/SpringMVC/test/ajax?id=1001",
+                   {username:"admin",password:"123456"}
+               ).then(response=>{
+                   console.log(response.data);
+               });
+           }
+       }
+    });
+</script>
+
+</body>
+</html>
+```
+
+```java
+@Controller
+public class TestAjaxController {
+    @RequestMapping("/test/ajax")
+    public void testAjax(Integer id, HttpServletResponse response) throws IOException {
+        System.out.println("id:"+id);
+        response.getWriter().write("hello,axios");
+    }
+}
+```
+
 ## 9.1、@RequestBody
 
-@RequestBody可以获取请求体信息，使用@RequestBody注解标识控制器方法的形参，当前请求的请求体就会为当前注解所标识的形参赋值
+@RequestBody 可以获取请求体信息，将请求体中的内容和控制器方法的形参进行绑定。即使用 @RequestBody 注解标识控制器方法的形参，当前请求的请求体就会为当前注解所标识的形参赋值
 
 ```html
 <!--此时必须使用post请求方式，因为get请求没有请求体-->
@@ -1566,21 +1699,13 @@ requestBody:username=admin&password=123456
 
 ## 9.2、@RequestBody获取json格式的请求参数
 
-> 在使用了axios发送ajax请求之后，浏览器发送到服务器的请求参数有两种格式：
+> 在使用了 axios 发送 ajax 请求之后，浏览器发送到服务器的请求参数有两种格式：
 >
-> 1、name=value&name=value...，此时的请求参数可以通过request.getParameter()获取，对应
+> 1、name=value&name=value...，此时的请求参数可以通过request.getParameter()获取，对应 SpringMVC中，可以直接通过控制器方法的形参获取此类请求参数
 >
-> SpringMVC中，可以直接通过控制器方法的形参获取此类请求参数
->
-> 2、{key:value,key:value,...}，此时无法通过request.getParameter()获取，之前我们使用操作
->
-> json的相关jar包gson或jackson处理此类请求参数，可以将其转换为指定的实体类对象或map集
->
-> 合。在SpringMVC中，直接使用@RequestBody注解标识控制器方法的形参即可将此类请求参数
->
-> 转换为java对象
+> 2、{key:value,key:value,...}，此时无法通过 request.getParameter() 获取，之前我们使用操作 json 的相关 jar 包gson 或 jackson 处理此类请求参数，可以将其转换为指定的实体类对象或 map 集合。在 SpringMVC 中，直接使用 @RequestBody 注解标识控制器方法的形参即可将此类请求参数转换为 Java 对象
 
-使用@RequestBody获取json格式的请求参数的条件：
+使用 @RequestBody 获取 json 格式的请求参数的条件：
 
 1、导入jackson的依赖
 
@@ -1588,25 +1713,28 @@ requestBody:username=admin&password=123456
 <dependency>
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
-    <version>2.12.1</version>
+    <version>2.14.2</version>
 </dependency>
 ```
 
-2、SpringMVC的配置文件中设置开启mvc的注解驱动
+2、SpringMVC的配置文件中设置开启 mvc 的注解驱动
 
 ```xml
 <!--开启mvc的注解驱动-->
 <mvc:annotation-driven />
 ```
 
-3、在控制器方法的形参位置，设置json格式的请求参数要转换成的java类型（实体类或map）的参
-
-数，并使用@RequestBody注解标识
+3、在处理请求的控制器方法的形参位置，设置 json 格式的请求参数要转换成的 Java 类型（实体类或 map ）的参数，并使用 @RequestBody 注解标识
 
 ```html
-<input type="button" value="测试@RequestBody获取json格式的请求参数"@click="testRequestBody()"><br>
-<script type="text/javascript" th:src="@{/js/vue.js}"></script>
-<script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+<div id="app">
+    <h1>index.html</h1>
+    <input type="button" value="测试SpringMVC处理ajax" @click="testAjax()"><br/>
+    <input type="button" value="测试@RequestBody注解处理json格式的请求参数" @click="testRequestBody()"><br/>
+</div>
+
+<script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/axios.min.js}"></script>
 <script type="text/javascript">
     var vue = new Vue({
         el:"#app",
@@ -1614,7 +1742,7 @@ requestBody:username=admin&password=123456
             testRequestBody(){
                 axios.post(
                     "/SpringMVC/test/RequestBody/json",
-                    {username:"admin",password:"123456"}
+                    {username:"admin",password:"123456",age:23,gender:"男"}
                 ).then(response=>{
                     console.log(response.data);
                 });
@@ -1629,29 +1757,49 @@ requestBody:username=admin&password=123456
 @RequestMapping("/test/RequestBody/json")
 public void testRequestBody(@RequestBody Map<String, Object> map,HttpServletResponse response) throws IOException {
     System.out.println(map);
-    //{username=admin, password=123456}
-    response.getWriter().print("hello,axios");
+    //{username=admin, password=123456,age=23, gender=男}
+    response.getWriter().print("hello,RequestBody");
 }
+
 //将json格式的数据转换为实体类对象
 @RequestMapping("/test/RequestBody/json")
-public void testRequestBody(@RequestBody User user, HttpServletResponseresponse) throws IOException {
+public void testRequestBody(@RequestBody User user, HttpServletResponse response) throws IOException {
     System.out.println(user);
-    //User{id=null, username='admin', password='123456', age=null,gender='null'}
-	response.getWriter().print("hello,axios");
+    //User{id=null, username='admin', password='123456', age=23,gender='男'}
+	response.getWriter().print("hello,RequestBody");
+}
+```
+
+创建实体类对象 User：
+
+```java
+public class User {
+    private Integer id;
+    private String username;
+    private String password;
+    private Integer age;
+    private String gender;
+    
+    //省略构造方法、Getter/Setter、toString方法
 }
 ```
 
 ## 9.3、@ResponseBody
 
-@ResponseBody用于标识一个控制器方法，可以将该方法的返回值直接作为响应报文的响应体响应到浏览器
+@ResponseBody 用于标识一个控制器方法，可以将该方法的返回值直接作为响应报文的响应体响应到浏览器
+
+```html
+<a th:href="@{/test/ResponseBody}">测试@ResponseBody注解响应浏览器数据</a><br/>
+```
 
 ```java
-@RequestMapping("/testResponseBody")
+@RequestMapping("/test/ResponseBody")
 public String testResponseBody(){
     //此时会跳转到逻辑视图success所对应的页面
     return "success";
 }
-@RequestMapping("/testResponseBody")
+
+@RequestMapping("/test/ResponseBody")
 @ResponseBody
 public String testResponseBody(){
     //此时响应浏览器数据success
@@ -1661,21 +1809,17 @@ public String testResponseBody(){
 
 ## 9.4、@ResponseBody响应浏览器json数据
 
-服务器处理ajax请求之后，大多数情况都需要向浏览器响应一个java对象，此时必须将java对象转换为
+服务器处理 ajax 请求之后，大多数情况都需要向浏览器响应一个 Java 对象，此时必须将 Java 对象转换为 json 字符串才可以响应到浏览器，之前我们使用操作 json 数据的 jar 包 gson 或 jackson 将 Java 对象转换为 json 字符串。在 SpringMVC 中，我们可以直接使用 @ResponseBody 注解实现此功能
 
-json字符串才可以响应到浏览器，之前我们使用操作json数据的jar包gson或jackson将java对象转换为
+@ResponseBody 响应浏览器 json 数据的条件：
 
-json字符串。在SpringMVC中，我们可以直接使用@ResponseBody注解实现此功能
-
-@ResponseBody响应浏览器json数据的条件：
-
-1、导入jackson的依赖
+1、导入 jackson 的依赖
 
 ```xml
 <dependency>
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-databind</artifactId>
-    <version>2.12.1</version>
+    <version>2.14.2</version>
 </dependency>
 ```
 
@@ -1686,14 +1830,13 @@ json字符串。在SpringMVC中，我们可以直接使用@ResponseBody注解实
 <mvc:annotation-driven />
 ```
 
-3、使用@ResponseBody注解标识控制器方法，在方法中，将需要转换为json字符串并响应到浏览器
-
-的java对象作为控制器方法的返回值，此时SpringMVC就可以将此对象直接转换为json字符串并响应到浏览器
+3、使用 @ResponseBody 注解标识控制器方法，在方法中，将需要转换为 json  字符串并响应到浏览器的 Java 对象作为控制器方法的返回值，此时 SpringMVC 就可以将此对象直接转换为 json 字符串并响应到浏览器
 
 ```html
-<input type="button" value="测试@ResponseBody响应浏览器json格式的数据"@click="testResponseBody()"><br>
-<script type="text/javascript" th:src="@{/js/vue.js}"></script>
-<script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+<input type="button" value="测试@ResponseBody响应浏览器json格式的数据" @click="testResponseBody()"><br>
+
+<script type="text/javascript" th:src="@{/static/js/vue.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/axios.min.js}"></script>
 <script type="text/javascript">
     var vue = new Vue({
         el:"#app",
@@ -1719,6 +1862,7 @@ public List<User> testResponseBody(){
     List<User> list = Arrays.asList(user1, user2, user3);
     return list;
 }
+
 //响应浏览器map集合
 @RequestMapping("/test/ResponseBody/json")
 @ResponseBody
@@ -1732,36 +1876,52 @@ public Map<String, Object> testResponseBody(){
     map.put("1003", user3);
     return map;
 }
+
 //响应浏览器实体类对象
 @RequestMapping("/test/ResponseBody/json")
 @ResponseBody
 public User testResponseBody(){
+    User user = new User(1001, "admin", "123456", 20, "男");
     return user;
 }
 ```
 
+常用的 Java 对象转换为 json 的结果：
+
+* 实体类-->json对象
+* map-->json对象
+* list-->json数组  
+
 ## 9.5、@RestController注解
 
-@RestController注解是springMVC提供的一个复合注解，标识在控制器的类上，就相当于为类添加了
+@RestController 注解是 SpringMVC 提供的一个复合注解，标识在控制器的类上，就相当于为类添加了
 
-@Controller注解，并且为其中的每个方法添加了@ResponseBody注解
+@Controller 注解，并且为其中的每个方法添加了 @ResponseBody 注解
 
 # 10、文件上传和下载
 
 ## 10.1、文件下载
 
-ResponseEntity用于控制器方法的返回值类型，该控制器方法的返回值就是响应到浏览器的响应报文
+ResponseEntity 用于控制器方法的返回值类型，该控制器方法的返回值就是响应到浏览器的响应报文
 
-使用ResponseEntity实现下载文件的功能
+使用 ResponseEntity 实现下载文件 的功能
+
+```html
+<a th:href="@{/test/download}">下载图片</a><br/>
+```
 
 ```java
-@RequestMapping("/testDown")
-public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws
-    IOException {
+@RequestMapping("/test/download")
+public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws IOException {
     //获取ServletContext对象
     ServletContext servletContext = session.getServletContext();
+    
     //获取服务器中文件的真实路径
-    String realPath = servletContext.getRealPath("/static/img/1.jpg");
+	//String realPath = servletContext.getRealPath("/static/img/1.jpg");
+    String realPath = servletContext.getRealPath("static/img");
+    realPath = realPath + File.separator + "1.jpg";
+    //System.out.println(realPath);
+    
     //创建输入流
     InputStream is = new FileInputStream(realPath);
     //创建字节数组
@@ -1784,9 +1944,16 @@ public ResponseEntity<byte[]> testResponseEntity(HttpSession session) throws
 
 ## 10.2、文件上传
 
-文件上传要求form表单的请求方式必须为post，并且添加属性enctype="multipart/form-data"
+文件上传要求 form 表单的请求方式必须为 post，并且添加属性  enctype="multipart/form-data"
 
-SpringMVC中将上传的文件封装到MultipartFile对象中，通过此对象可以获取文件相关信息
+SpringMVC 中将上传的文件封装到 MultipartFile 对象中，通过此对象可以获取文件相关信息
+
+```html
+<form th:action="@{/test/upload}" method="post" enctype="multipart/form-data">
+    头像：<input type="file" name="photo"><br/>
+    <input type="submit" value="上传">
+</form>
+```
 
 上传步骤：
 
@@ -1797,38 +1964,48 @@ SpringMVC中将上传的文件封装到MultipartFile对象中，通过此对象�
 <dependency>
     <groupId>commons-fileupload</groupId>
     <artifactId>commons-fileupload</artifactId>
-    <version>1.3.1</version>
+    <version>1.5</version>
 </dependency>
 ```
 
 ### ②在SpringMVC的配置文件中添加配置：
 
 ```xml
+<!-- 配置文件上传解析器 -->
 <!--必须通过文件解析器的解析才能将文件转换为MultipartFile对象-->
-<bean id="multipartResolver"
-class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 </bean>
 ```
 
 ### ③控制器方法：
 
 ```java
-@RequestMapping("/testUp")
+@RequestMapping("/test/upload")
 public String testUp(MultipartFile photo, HttpSession session) throws IOException {
     //获取上传的文件的文件名
     String fileName = photo.getOriginalFilename();
+	//System.out.println(fileName);
+    
     //处理文件重名问题
+    //获取上传文件的后缀名
     String hzName = fileName.substring(fileName.lastIndexOf("."));
-    fileName = UUID.randomUUID().toString() + hzName;
-    //获取服务器中photo目录的路径
+    //获取uuid
+    fileName = UUID.randomUUID().toString();
+    //拼接一个新的文件名
+    fileName = uuid + hzName;
+
+    //获取ServletContext对象
     ServletContext servletContext = session.getServletContext();
+    //获取服务器中当前工程下photo目录的真实路径
     String photoPath = servletContext.getRealPath("photo");
+    //创建photoPath所对应的File对象
     File file = new File(photoPath);
+    //判断file所对应目录是否存在
     if(!file.exists()){
         file.mkdir();
     }
     String finalPath = photoPath + File.separator + fileName;
-    //实现上传功能
+    //上传文件
     photo.transferTo(new File(finalPath));
     return "success";
 }
