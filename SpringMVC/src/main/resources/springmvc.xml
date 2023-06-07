@@ -9,7 +9,8 @@
     <!--<context:component-scan base-package="com.atguigu.helloworld.controller"></context:component-scan>-->
     <!--<context:component-scan base-package="com.atguigu.demo.controller"></context:component-scan>-->
     <!--<context:component-scan base-package="com.atguigu.rest"></context:component-scan>-->
-    <context:component-scan base-package="com.atguigu.ajax"></context:component-scan>
+    <!--<context:component-scan base-package="com.atguigu.ajax"></context:component-scan>-->
+    <context:component-scan base-package="com.atguigu.extension"></context:component-scan>
 
     <!-- 配置Thymeleaf视图解析器 -->
     <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
@@ -56,4 +57,22 @@
 
     <!-- 配置文件上传解析器 -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+
+    <!--<bean id="firstInterceptor" class="com.atguigu.extension.interceptor.FirstInterceptor"></bean>-->
+
+    <mvc:interceptors>
+        <!--bean和ref标签所配置的拦截器默认对DispatcherServlet处理的所有请求进行拦截-->
+        <!--<bean class="com.atguigu.extension.interceptor.FirstInterceptor"></bean>-->
+        <!--<ref bean="firstInterceptor"></ref>-->
+        <mvc:interceptor>
+            <!--/*只能表示上下文路径下的一层目录的路径-->
+            <!--<mvc:mapping path="/*"/>-->
+            <!--配置需要拦截的请求的请求路径，/**表示所有请求-->
+            <mvc:mapping path="/**"/>
+            <!--配置需要排除拦截的请求的请求路径-->
+            <mvc:exclude-mapping path="/abc"/>
+            <!--配置拦截器-->
+            <ref bean="firstInterceptor"></ref>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>

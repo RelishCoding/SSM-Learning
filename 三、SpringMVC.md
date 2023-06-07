@@ -927,7 +927,9 @@ public String testRedirect(){
 
 ## 7.1、RESTful简介
 
-REST：**Re**presentational **S**tate **T**ransfer，表现层资源状态转移。
+REST：**Re**presentational **S**tate **T**ransfer，表现层资源状态转移，在开发中代表访问网络资源的格式。
+
+按照 REST 风格对资源进行访问成为 RESTFul
 
 ### ①资源
 
@@ -941,7 +943,14 @@ REST：**Re**presentational **S**tate **T**ransfer，表现层资源状态转移
 
 状态转移说的是：在客户端和服务器端之间转移（transfer）代表资源状态的表述。通过转移和操作资源的表述，来间接实现操作资源的目的。
 
+优点：
+
+* 隐藏资源的访问行为，无法通过地址的值对资源使何种操作
+* 书写简化
+
 ## 7.2、RESTful的实现
+
+按照 REST 风格访问资源时使用行为动作区分对资源进行了何种操作。
 
 具体说，就是 HTTP 协议里面，四个表示操作方式的动词：GET、POST、PUT、DELETE。
 
@@ -972,7 +981,7 @@ SpringMVC 提供了 **HiddenHttpMethodFilter** 帮助我们**将 POST 请求转�
 
 满足以上条件，**HiddenHttpMethodFilter** 过滤器就会将当前请求的请求方式转换为请求参数 \_method的值，因此请求参数 _method 的值才是最终的请求方式
 
-在web.xml中注册 **HiddenHttpMethodFilter**
+在 web.xml 中注册 **HiddenHttpMethodFilter**
 
 ```xml
 <!-- 设置处理请求方式的过滤器 -->
@@ -2015,19 +2024,24 @@ public String testUp(MultipartFile photo, HttpSession session) throws IOExceptio
 
 ## 11.1、拦截器的配置
 
-SpringMVC中的拦截器用于拦截控制器方法的执行
+SpringMVC 中的拦截器用于拦截控制器方法的执行
 
-SpringMVC中的拦截器需要实现HandlerInterceptor
+SpringMVC 中的拦截器需要实现 HandlerInterceptor 接口
 
-SpringMVC的拦截器必须在SpringMVC的配置文件中进行配置：
+SpringMVC 的拦截器必须在 SpringMVC 的配置文件中进行配置，有三种配置方式：
 
 ```xml
-<bean class="com.atguigu.interceptor.FirstInterceptor"></bean>
-<ref bean="firstInterceptor"></ref>
-<!-- 以上两种配置方式都是对DispatcherServlet所处理的所有的请求进行拦截 -->
+<!--<bean class="com.atguigu.interceptor.FirstInterceptor"></bean>-->
+<!--<ref bean="firstInterceptor"></ref>-->
+<!-- 以上两种配置方式都是默认对DispatcherServlet所处理的所有的请求进行拦截 -->
 <mvc:interceptor>
+    <!--/*只能表示上下文路径下的一层目录的路径-->
+    <!--<mvc:mapping path="/*"/>-->
+    <!--配置需要拦截的请求的请求路径，/**表示所有请求-->
     <mvc:mapping path="/**"/>
+    <!--配置需要排除拦截的请求的请求路径-->
     <mvc:exclude-mapping path="/testRequestEntity"/>
+    <!--配置拦截器-->
     <ref bean="firstInterceptor"></ref>
 </mvc:interceptor>
 <!--
@@ -2038,13 +2052,13 @@ SpringMVC的拦截器必须在SpringMVC的配置文件中进行配置：
 
 ## 11.2、拦截器的三个抽象方法
 
-SpringMVC中的拦截器有三个抽象方法：
+SpringMVC 中的拦截器有三个抽象方法：
 
-preHandle：控制器方法执行之前执行preHandle()，其boolean类型的返回值表示是否拦截或放行，返回true为放行，即调用控制器方法；返回false表示拦截，即不调用控制器方法
+* preHandle：控制器方法执行之前执行 preHandle()，其 boolean 类型的返回值表示是否拦截或放行，返回 true为放行，即调用控制器方法；返回 false 表示拦截，即不调用控制器方法
 
-postHandle：控制器方法执行之后执行postHandle()
+* postHandle：控制器方法执行之后执行 postHandle()
 
-afterCompletion：处理完视图和模型数据，渲染视图完毕之后执行afterCompletion()
+*  afterCompletion：处理完视图和模型数据，渲染视图完毕之后执行 afterCompletion()
 
 ## 11.3、多个拦截器的执行顺序
 
