@@ -63,16 +63,17 @@
     <mvc:interceptors>
         <!--bean和ref标签所配置的拦截器默认对DispatcherServlet处理的所有请求进行拦截-->
         <!--<bean class="com.atguigu.extension.interceptor.FirstInterceptor"></bean>-->
-        <!--<ref bean="firstInterceptor"></ref>-->
-        <mvc:interceptor>
-            <!--/*只能表示上下文路径下的一层目录的路径-->
-            <!--<mvc:mapping path="/*"/>-->
-            <!--配置需要拦截的请求的请求路径，/**表示所有请求-->
+        <ref bean="firstInterceptor"></ref>
+        <ref bean="secondInterceptor"></ref>
+        <!--<mvc:interceptor>
+            &lt;!&ndash;/*只能表示上下文路径下的一层目录的路径&ndash;&gt;
+            &lt;!&ndash;<mvc:mapping path="/*"/>&ndash;&gt;
+            &lt;!&ndash;配置需要拦截的请求的请求路径，/**表示所有请求&ndash;&gt;
             <mvc:mapping path="/**"/>
-            <!--配置需要排除拦截的请求的请求路径-->
+            &lt;!&ndash;配置需要排除拦截的请求的请求路径&ndash;&gt;
             <mvc:exclude-mapping path="/abc"/>
-            <!--配置拦截器-->
+            &lt;!&ndash;配置拦截器&ndash;&gt;
             <ref bean="firstInterceptor"></ref>
-        </mvc:interceptor>
+        </mvc:interceptor>-->
     </mvc:interceptors>
 </beans>

@@ -2058,21 +2058,19 @@ SpringMVC 中的拦截器有三个抽象方法：
 
 * postHandle：控制器方法执行之后执行 postHandle()
 
-*  afterCompletion：处理完视图和模型数据，渲染视图完毕之后执行 afterCompletion()
+*  afterCompletion：在控制器方法执行之后，且处理完视图和模型数据，渲染视图完毕之后执行
 
 ## 11.3、多个拦截器的执行顺序
 
-①若每个拦截器的preHandle()都返回true
+①若每个拦截器的 preHandle() 都返回 true
 
-此时多个拦截器的执行顺序和拦截器在SpringMVC的配置文件的配置顺序有关：
+此时多个拦截器的执行顺序和拦截器在 SpringMVC 的配置文件的配置顺序有关：
 
-preHandle()会按照配置的顺序执行，而postHandle()和afterCompletion()会按照配置的反序执行
+preHandle() 会按照配置的顺序执行，而 postHandle() 和 afterCompletion() 会按照配置的反序执行
 
-②若某个拦截器的preHandle()返回了false
+②若某个拦截器的 preHandle() 返回了 false
 
-preHandle()返回false和它之前的拦截器的preHandle()都会执行，postHandle()都不执行，返回false
-
-的拦截器之前的拦截器的afterCompletion()会执行
+preHandle() 返回 false 和它之前的拦截器的 preHandle() 都会执行，所有的拦截器的 postHandle() 都不执行，返回 false 的拦截器之前的拦截器的 afterCompletion() 会执行
 
 # 12、异常处理器
 
