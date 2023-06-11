@@ -2,24 +2,20 @@
 
 ## 1.1、什么是MVC
 
-MVC是一种软件架构的思想，将软件按照模型、视图、控制器来划分
+MVC 是一种软件架构的思想，将软件按照模型、视图、控制器来划分
 
-M：Model，模型层，指工程中的JavaBean，作用是处理数据
+M：Model，模型层，指工程中的 JavaBean，作用是处理数据
 
-JavaBean分为两类：
+JavaBean 分为两类：
 
-- 一类称为实体类Bean：专门存储业务数据的，如 Student、User 等
+- 一类称为实体类 Bean：专门存储业务数据的，如 Student、User 等
 - 一类称为业务处理 Bean：指 Service 或 Dao 对象，专门用于处理业务逻辑和数据访问。
 
 V：View，视图层，指工程中的html或jsp等页面，作用是与用户进行交互，展示数据
 
-C：Controller，控制层，指工程中的servlet，作用是接收请求和响应浏览器
+C：Controller，控制层，指工程中的 servlet，作用是接收请求和响应浏览器
 
-MVC 的工作流程： 用户通过视图层发送请求到服务器，在服务器中请求被 Controller 接收，Controller
-
-调用相应的 Model 层处理请求，处理完毕将结果返回到 Controller，Controller 再根据请求处理的结果
-
-找到相应的 View 视图，渲染数据后最终响应给浏览器
+MVC 的工作流程： 用户通过视图层发送请求到服务器，在服务器中请求被 Controller 接收，Controller 调用相应的 Model 层处理请求，处理完毕将结果返回到 Controller，Controller 再根据请求处理的结果找到相应的 View 视图，渲染数据后最终响应给浏览器
 
 ## 1.2、什么是SpringMVC
 
@@ -2076,31 +2072,52 @@ preHandle() 返回 false 和它之前的拦截器的 preHandle() 都会执行，
 
 ## 12.1、基于配置的异常处理
 
-SpringMVC提供了一个处理控制器方法执行过程中所出现的异常的接口：HandlerExceptionResolver
+SpringMVC 提供了一个处理控制器方法执行过程中所出现的异常的接口：HandlerExceptionResolver
 
-HandlerExceptionResolver接口的实现类有：DefaultHandlerExceptionResolver和
+HandlerExceptionResolver 接口的实现类有：DefaultHandlerExceptionResolver 和 SimpleMappingExceptionResolver
 
-SimpleMappingExceptionResolver
-
-SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，使用方式：
+SpringMVC 提供了自定义的异常处理器 SimpleMappingExceptionResolver，使用方式：
 
 ```xml
-<bean
-      class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
     <property name="exceptionMappings">
         <props>
             <!--
-                properties的键表示处理器方法执行过程中出现的异常
-                properties的值表示若出现指定异常时，设置一个新的视图名称，跳转到指定页面
+                key表示处理器方法执行过程中出现的异常
+                value表示若出现指定异常时，要跳转的页面所对应的逻辑视图
 			-->
             <prop key="java.lang.ArithmeticException">error</prop>
         </props>
     </property>
-    <!--
-		exceptionAttribute属性设置一个属性名，将出现的异常信息在请求域中进行共享
-	-->
+    <!-- exceptionAttribute属性设置共享在请求域中的异常信息的属性名 -->
     <property name="exceptionAttribute" value="ex"></property>
 </bean>
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>错误</title>
+</head>
+<body>
+<h1>error.html</h1>
+
+<p th:text="${ex}"></p>
+</body>
+</html>
+```
+
+```java
+@Controller
+public class TestController {
+    @RequestMapping("/test/hello")
+    public String testHello(){
+        System.out.println(1/0);
+        return "success";
+    }
+}
 ```
 
 ## 12.2、基于注解的异常处理
@@ -2109,10 +2126,10 @@ SpringMVC提供了自定义的异常处理器SimpleMappingExceptionResolver，�
 //@ControllerAdvice将当前类标识为异常处理的组件
 @ControllerAdvice
 public class ExceptionController {
-    //@ExceptionHandler用于设置所标识方法处理的异常
+    //@ExceptionHandler用于设置所标识方法要处理的异常
     @ExceptionHandler(ArithmeticException.class)
-    //ex表示当前请求处理中出现的异常对象
-    public String handleArithmeticException(Exception ex, Model model){
+    public String handleException(Exception ex, Model model){
+        //ex表示当前请求处理中出现的异常对象
         model.addAttribute("ex", ex);
         return "error";
     }
@@ -2121,58 +2138,43 @@ public class ExceptionController {
 
 # 13、注解配置SpringMVC
 
-使用配置类和注解代替web.xml和SpringMVC配置文件的功能
+使用配置类和注解代替 web.xml 和 SpringMVC 配置文件的功能
 
 ## 13.1、创建初始化类，代替web.xml
 
-在Servlet3.0环境中，容器会在类路径中查找实现javax.servlet.ServletContainerInitializer接口的类，
+在 Servlet3.0 环境中，容器会在类路径中查找实现 javax.servlet.ServletContainerInitializer 接口的类，如果找到的话就用它来配置 Servlet 容器。
 
-如果找到的话就用它来配置Servlet容器。 Spring提供了这个接口的实现，名为
-
-SpringServletContainerInitializer，这个类反过来又会查找实现WebApplicationInitializer的类并将配
-
-置的任务交给它们来完成。Spring3.2引入了一个便利的WebApplicationInitializer基础实现，名为
-
-AbstractAnnotationConfigDispatcherServletInitializer，当我们的类扩展了
-
-AbstractAnnotationConfigDispatcherServletInitializer并将其部署到Servlet3.0容器的时候，容器会自动发现它，并用它来配置Servlet上下文。
+Spring 提供了这个接口的实现，名为 SpringServletContainerInitializer，这个类反过来又会查找实现WebApplicationInitializer 的类并将配置的任务交给它们来完成。Spring3.2 引入了一个便利的WebApplicationInitializer 基础实现，名为 AbstractAnnotationConfigDispatcherServletInitializer，当我们的类扩展了AbstractAnnotationConfigDispatcherServletInitializer 并将其部署到 Servlet3.0 容器的时候，容器会自动发现它，并用它来配置 Servlet 上下文。
 
 ```java
-public class WebInit extends
-    AbstractAnnotationConfigDispatcherServletInitializer {
-    /**
-     * 指定spring的配置类
-     * @return
-	 */
+//WebInit类用来代替web.xml
+public class WebInit extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
+    //设置一个配置类代替Spring的配置文件
     protected Class<?>[] getRootConfigClasses() {
         return new Class[]{SpringConfig.class};
     }
-    /**
-     * 指定SpringMVC的配置类
-     * @return
-     */
+    
     @Override
+    //设置一个配置类代替SpringMVC的配置文件
     protected Class<?>[] getServletConfigClasses() {
         return new Class[]{WebConfig.class};
     }
-    /**
-     * 指定DispatcherServlet的映射规则，即url-pattern
-     * @return
-     */
+    
     @Override
+    //设置SprignMVC的前端控制器DispatcherServlet的映射规则，即url-pattern
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
-    /**
-     * 添加过滤器
-     * @return
-     */
+    
     @Override
+    //添加过滤器
     protected Filter[] getServletFilters() {
+        //创建编码过滤器
         CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
         encodingFilter.setEncoding("UTF-8");
         encodingFilter.setForceRequestEncoding(true);
+        //创建处理请求方式的过滤器
         HiddenHttpMethodFilter hiddenHttpMethodFilter = newHiddenHttpMethodFilter();
         return new Filter[]{encodingFilter, hiddenHttpMethodFilter};
     }
@@ -2182,6 +2184,7 @@ public class WebInit extends
 ## 13.2、创建SpringConfig配置类，代替spring的配置文件
 
 ```java
+//将类标识为配置类
 @Configuration
 public class SpringConfig {
     //ssm整合之后，spring的配置信息写在此类中
@@ -2191,6 +2194,7 @@ public class SpringConfig {
 ## 13.3、创建WebConfig配置类，代替SpringMVC的配置文件
 
 ```java
+//将类标识为配置类
 @Configuration
 //扫描组件
 @ComponentScan("com.atguigu.mvc.controller")
@@ -2202,24 +2206,29 @@ public class WebConfig implements WebMvcConfigurer {
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
+    
+    //配置视图解析器
+    @Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+		registry.addViewController("/").setViewName("index");
+	}
+    
     //配置文件上传解析器
+    //@Bean注解可以将标识的方法的返回值作为bean进行管理，bean的id为方法的方法名
     @Bean
     public CommonsMultipartResolver multipartResolver(){
         return new CommonsMultipartResolver();
     }
+    
     //配置拦截器
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         FirstInterceptor firstInterceptor = new FirstInterceptor();
         registry.addInterceptor(firstInterceptor).addPathPatterns("/**");
     }
-    //配置视图控制
-    /*@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("index");
-	}*/
-    //配置异常映射
-    /*@Override
+    
+    //配置异常解析器
+    @Override
 	public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
 		SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
 		Properties prop = new Properties();
@@ -2229,14 +2238,14 @@ public class WebConfig implements WebMvcConfigurer {
 		//设置共享异常信息的键
 		exceptionResolver.setExceptionAttribute("ex");
 		resolvers.add(exceptionResolver);
-	}*/
+	}
+    
     //配置生成模板解析器
     @Bean
     public ITemplateResolver templateResolver() {
         WebApplicationContext webApplicationContext =ContextLoader.getCurrentWebApplicationContext();
-            // ServletContextTemplateResolver需要一个ServletContext作为构造参数，可通过WebApplicationContext 的方法获得
-            ServletContextTemplateResolver templateResolver = new
-                ServletContextTemplateResolver(webApplicationContext.getServletContext());
+        // ServletContextTemplateResolver需要一个ServletContext作为构造参数，可通过WebApplicationContext 的方法获得
+        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(webApplicationContext.getServletContext());
         templateResolver.setPrefix("/WEB-INF/templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setCharacterEncoding("UTF-8");
@@ -2257,6 +2266,39 @@ public class WebConfig implements WebMvcConfigurer {
         viewResolver.setCharacterEncoding("UTF-8");
         viewResolver.setTemplateEngine(templateEngine);
         return viewResolver;
+    }
+}
+```
+
+```java
+public class FirstInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+
+    }
+}
+```
+
+```java
+//将当前类标识为异常处理的组件
+@ControllerAdvice
+public class ExceptionController {
+    //设置要处理的异常信息
+    @ExceptionHandler(ArithmeticException.class)
+    public String handleException(Throwable ex,Model model){
+        //ex表示控制器方法所出现的异常
+        model.addAttribute("ex",ex);
+        return "error";
     }
 }
 ```
