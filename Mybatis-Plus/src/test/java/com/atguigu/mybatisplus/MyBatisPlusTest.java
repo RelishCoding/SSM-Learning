@@ -96,7 +96,11 @@ public class MyBatisPlusTest {
 
         //查询所有数据
         //SELECT id,name,age,email FROM user
-        List<User> users = userMapper.selectList(null);
-        users.forEach(System.out::println);
+        //List<User> users = userMapper.selectList(null);
+        //users.forEach(System.out::println);
+
+        //select id,name,age,email from user where id = ?
+        Map<String, Object> map = userMapper.selectMapById(1L);
+        System.out.println(map);
     }
 }
