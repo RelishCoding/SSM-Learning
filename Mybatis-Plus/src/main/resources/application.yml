@@ -13,3 +13,10 @@ mybatis-plus:
   configuration:
     # 配置MyBatis日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # 设置Mybatis-Plus的全局配置
+  global-config:
+    db-config:
+      # 设置实体类所对应的表的统一前缀
+      table-prefix: t_
+      # 设置统一的主键生成策略
+      id-type: auto

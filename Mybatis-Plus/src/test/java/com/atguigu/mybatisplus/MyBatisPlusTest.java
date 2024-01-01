@@ -36,6 +36,7 @@ public class MyBatisPlusTest {
         int result = userMapper.insert(user);
         System.out.println("受影响的行数：" + result);
         System.out.println("id = " + user.getId());
+        //System.out.println("id = " + user.getUid());
     }
 
     @Test
@@ -55,7 +56,7 @@ public class MyBatisPlusTest {
 
         //通过多个id实现批量删除
         //DELETE FROM user WHERE id IN ( ? , ? , ? )
-        List<Long> list = Arrays.asList(6L, 7L, 8L);
+        List<Long> list = Arrays.asList(1L, 2L, 3L);
         int result = userMapper.deleteBatchIds(list);
         System.out.println("result = " + result);
     }
@@ -66,6 +67,7 @@ public class MyBatisPlusTest {
         //UPDATE user SET name=?, age=?, email=? WHERE id=?
         User user = new User();
         user.setId(6L);
+        //user.setUid(6L);
         user.setName("张三");
         user.setAge(29);
         user.setEmail("zhangsan@163.com");
